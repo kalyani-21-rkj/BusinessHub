@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # BusinessHub
 
 BusinessHub is a full-stack Business Management System that combines CRM, Sales, Billing, and HR Management into one platform.
@@ -38,3 +39,5 @@ BusinessHub/
 ├── client/
 ├── server/
 └── README.md
+=======
+
