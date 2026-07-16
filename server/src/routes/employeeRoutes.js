@@ -7,24 +7,65 @@ const {
     getEmployeeById,
     updateEmployee,
     deleteEmployee,
+    getEmployeeStats,
 } = require("../controllers/employeeController");
 
 const protect = require("../middleware/authMiddleware");
 const authorizeRoles = require("../middleware/roleMiddleware");
 
-// Only Admin can add employees
-router.post("/", protect, authorizeRoles("admin"), addEmployee);
+const employeeValidation = require("../validators/employeeValidator");
+const validate = require("../middleware/validate");
 
-// Admin, Manager and Employee can view employees
-router.get("/", protect, authorizeRoles("admin", "manager", "employee"), getEmployees);
+// Add Employee
+router.post(
+    "/",
+    protect,
+    authorizeRoles("admin"),
+    employeeValidation,
+    validate,
+    addEmployee
+);
 
-// Admin, Manager and Employee can view employee by ID
-router.get("/:id", protect, authorizeRoles("admin", "manager", "employee"), getEmployeeById);
+// Get All Employees
+router.get(
+    "/",
+    protect,
+    authorizeRoles("admin", "manager", "employee"),
+    getEmployees
+);
+router.get(
+    "/stats",
+    protect,
+    authorizeRoles("admin", "manager"),
+    getEmployeeStats
+);
 
-// Only Admin can update employee
-router.put("/:id", protect, authorizeRoles("admin"), updateEmployee);
+// Get Employee By ID
+router.get(
+    "/:id",
+    protect,
+    authorizeRoles("admin", "manager", "employee"),
+    getEmployeeById
+);
 
-// Only Admin can delete employee
-router.delete("/:id", protect, authorizeRoles("admin"), deleteEmployee);
+
+// Update Employee
+router.put(
+    "/:id",
+    protect,
+    authorizeRoles("admin"),
+    employeeValidation,
+    validate,
+    updateEmployee
+);
+
+// Delete Employee
+router.delete(
+    "/:id",
+    protect,
+    authorizeRoles("admin"),
+    deleteEmployee
+);
+
 
 module.exports = router;

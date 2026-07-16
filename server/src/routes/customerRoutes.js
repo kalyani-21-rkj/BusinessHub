@@ -1,15 +1,31 @@
 const express = require("express");
 const router = express.Router();
 
-const protect = require("../middleware/authMiddleware");
-
 const {
     addCustomer,
     getCustomers,
 } = require("../controllers/customerController");
 
-router.post("/", protect, addCustomer);
+const protect = require("../middleware/authMiddleware");
+const authorizeRoles = require("../middleware/roleMiddleware");
 
-router.get("/", protect, getCustomers);
+const customerValidation = require("../validators/customerValidator");
+const validate = require("../middleware/validate");
+
+router.post(
+    "/",
+    protect,
+    authorizeRoles("admin"),
+    customerValidation,
+    validate,
+    addCustomer
+);
+
+router.get(
+    "/",
+    protect,
+    authorizeRoles("admin", "manager"),
+    getCustomers
+);
 
 module.exports = router;

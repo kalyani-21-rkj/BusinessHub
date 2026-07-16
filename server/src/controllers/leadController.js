@@ -1,45 +1,77 @@
 const Lead = require("../models/Lead");
+const ApiError = require("../utils/apiError");
+const asyncHandler = require("../utils/asyncHandler");
 
-const addLead = async (req, res) => {
-    try {
-        const lead = await Lead.create(req.body);
+// Create Lead
+const createLead = asyncHandler(async (req, res) => {
 
-        res.status(201).json({
-            success: true,
-            message: "Lead Created Successfully",
-            lead,
-        });
+    const lead = await Lead.create(req.body);
 
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: error.message,
-        });
-    }
-};
+    res.status(201).json({
+        success: true,
+        message: "Lead Created Successfully",
+        lead,
+    });
 
-const getLeads = async (req, res) => {
-    try {
+});
 
-        const leads = await Lead.find()
+// Get All Leads
+const APIFeatures = require("../utils/apiFeatures");
+
+const getLeads = asyncHandler(async (req, res) => {
+
+    const resultPerPage = 5;
+    const totalLeads = await Lead.countDocuments();
+    const apiFeatures = new APIFeatures(
+        Lead.find()
             .populate("customer")
-            .populate("assignedTo");
+            .populate("assignedTo"),
+        req.query
+    )
+        .search()
+        .filter()
+        .sort()
+        .paginate(resultPerPage);
 
-        res.status(200).json({
-            success: true,
-            count: leads.length,
-            leads,
-        });
+    const leads = await apiFeatures.query;
 
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: error.message,
-        });
+    res.status(200).json({
+        success: true,
+        totalLeads,
+        resultPerPage,
+        currentPage: Number(req.query.page) || 1,
+        count: leads.length,
+        leads,
+    });
+
+});
+
+// Update Lead
+const updateLead = asyncHandler(async (req, res) => {
+
+    const lead = await Lead.findByIdAndUpdate(
+        req.params.id,
+        req.body,
+        {
+            returnDocument: "after",
+            runValidators: true,
+        }
+    );
+
+    if (!lead) {
+        throw new ApiError(404, "Lead Not Found");
     }
-};
+
+    res.status(200).json({
+        success: true,
+        message: "Lead Updated Successfully",
+        lead,
+    });
+
+});
 
 module.exports = {
-    addLead,
+    createLead,
     getLeads,
+    updateLead,
 };

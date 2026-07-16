@@ -1,49 +1,34 @@
 const Employee = require("../models/Employee");
 const Customer = require("../models/Customer");
-const Lead = require("../models/Lead");
+const Product = require("../models/Product");
+const Payment = require("../models/Payment");
 
-const getDashboard = async (req, res) => {
-    try {
+const asyncHandler = require("../utils/asyncHandler");
 
-        const totalEmployees = await Employee.countDocuments();
+const getDashboard = asyncHandler(async (req, res) => {
 
-        const totalCustomers = await Customer.countDocuments();
+    const totalEmployees = await Employee.countDocuments();
+    const totalCustomers = await Customer.countDocuments();
+    const totalProducts = await Product.countDocuments();
 
-        const totalLeads = await Lead.countDocuments();
+    const payments = await Payment.find();
 
-        const newLeads = await Lead.countDocuments({
-            status: "New",
-        });
+    const totalRevenue = payments.reduce(
+        (sum, payment) => sum + Number(payment.amount || 0),
+        0
+    );
 
-        const wonLeads = await Lead.countDocuments({
-            status: "Won",
-        });
+    res.status(200).json({
+        success: true,
+        dashboard: {
+            totalEmployees,
+            totalCustomers,
+            totalProducts,
+            totalRevenue,
+        },
+    });
 
-        const lostLeads = await Lead.countDocuments({
-            status: "Lost",
-        });
-
-        res.status(200).json({
-            success: true,
-            dashboard: {
-                totalEmployees,
-                totalCustomers,
-                totalLeads,
-                newLeads,
-                wonLeads,
-                lostLeads,
-            },
-        });
-
-    } catch (error) {
-
-        res.status(500).json({
-            success: false,
-            message: error.message,
-        });
-
-    }
-};
+});
 
 module.exports = {
     getDashboard,
