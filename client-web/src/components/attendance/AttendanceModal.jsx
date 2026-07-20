@@ -1,182 +1,261 @@
-import { useState } from "react";
+/* eslint-disable react-hooks/set-state-in-effect */
+import { useEffect, useState } from "react";
 
-const AttendanceModal = ({ employee, onClose }) => {
+import {
+  markAttendance,
+  updateAttendance,
+} from "../../services/attendanceService";
+
+import { getEmployees } from "../../services/employeeService";
+
+const AttendanceModal = ({
+  open,
+  onClose,
+  attendance,
+  onSuccess,
+}) => {
+  const [employees, setEmployees] = useState([]);
+
+  const [loading, setLoading] = useState(false);
+
   const [formData, setFormData] = useState({
-    employee: employee?.employee || "",
-    department: employee?.department || "",
-    date: new Date().toISOString().split("T")[0],
-    checkIn: employee?.checkIn === "--" ? "" : employee?.checkIn || "",
-    checkOut: employee?.checkOut === "--" ? "" : employee?.checkOut || "",
-    status: employee?.status || "Present",
-    notes: "",
+    employee: "",
+    date: "",
+    checkIn: "",
+    checkOut: "",
+    status: "Present",
+    remarks: "",
   });
 
+  useEffect(() => {
+    if (!open) return;
+
+    const loadEmployees = async () => {
+      try {
+        const res = await getEmployees();
+        setEmployees(res.data.employees || []);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+
+    loadEmployees();
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+
+    if (attendance) {
+      setFormData({
+        employee:
+          attendance.employee?._id || attendance.employee || "",
+        date: attendance.date
+          ? attendance.date.substring(0, 10)
+          : "",
+        checkIn: attendance.checkIn || "",
+        checkOut: attendance.checkOut || "",
+        status: attendance.status || "Present",
+        remarks: attendance.remarks || "",
+      });
+    } else {
+      setFormData({
+        employee: "",
+        date: new Date().toISOString().split("T")[0],
+        checkIn: "",
+        checkOut: "",
+        status: "Present",
+        remarks: "",
+      });
+    }
+  }, [attendance, open]);
+
+  if (!open) return null;
+
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
+    setFormData((prev) => ({
+      ...prev,
       [e.target.name]: e.target.value,
-    });
+    }));
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl p-6">
+    try {
+      setLoading(true);
 
-        {/* Header */}
+      if (attendance) {
+        await updateAttendance(
+          attendance._id,
+          formData
+        );
 
-        <div className="flex justify-between items-center mb-6">
+        alert("Attendance Updated Successfully");
+      } else {
+        await markAttendance(formData);
 
-          <h2 className="text-2xl font-bold text-slate-800">
-            {employee ? "Attendance Details" : "Mark Attendance"}
-          </h2>
+        alert("Attendance Marked Successfully");
+      }
 
-          <button
-            onClick={onClose}
-            className="text-slate-500 hover:text-red-600 text-2xl"
-          >
-            ×
-          </button>
+      onSuccess();
 
-        </div>
+      onClose();
+    } catch (err) {
+      console.log(err);
 
-        {/* Form */}
+      alert(
+        err.response?.data?.message ||
+          "Unable to Save Attendance"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+    return (
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <div className="bg-white rounded-2xl w-full max-w-2xl p-8">
 
-          <div>
-            <label className="block mb-2 font-medium">
-              Employee
-            </label>
+        <h2 className="text-2xl font-bold mb-6">
+          {attendance ? "Update Attendance" : "Mark Attendance"}
+        </h2>
 
-            <input
-              type="text"
-              name="employee"
-              value={formData.employee}
-              onChange={handleChange}
-              placeholder="Employee Name"
-              className="w-full border rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none"
-            />
-          </div>
+        <form
+          onSubmit={handleSubmit}
+          className="grid grid-cols-2 gap-5"
+        >
 
-          <div>
-            <label className="block mb-2 font-medium">
-              Department
-            </label>
+          {/* Employee */}
 
-            <select
-              name="department"
-              value={formData.department}
-              onChange={handleChange}
-              className="w-full border rounded-xl px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none"
-            >
-              <option>HR</option>
-              <option>Sales</option>
-              <option>Inventory</option>
-              <option>Finance</option>
-              <option>IT</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="block mb-2 font-medium">
-              Date
-            </label>
-
-            <input
-              type="date"
-              name="date"
-              value={formData.date}
-              onChange={handleChange}
-              className="w-full border rounded-xl px-4 py-3"
-            />
-          </div>
-
-          <div>
-            <label className="block mb-2 font-medium">
-              Status
-            </label>
-
-            <select
-              name="status"
-              value={formData.status}
-              onChange={handleChange}
-              className="w-full border rounded-xl px-4 py-3"
-            >
-              <option>Present</option>
-              <option>Late</option>
-              <option>Absent</option>
-              <option>Leave</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="block mb-2 font-medium">
-              Check In
-            </label>
-
-            <input
-              type="time"
-              name="checkIn"
-              value={formData.checkIn}
-              onChange={handleChange}
-              className="w-full border rounded-xl px-4 py-3"
-            />
-          </div>
-
-          <div>
-            <label className="block mb-2 font-medium">
-              Check Out
-            </label>
-
-            <input
-              type="time"
-              name="checkOut"
-              value={formData.checkOut}
-              onChange={handleChange}
-              className="w-full border rounded-xl px-4 py-3"
-            />
-          </div>
-
-        </div>
-
-        {/* Notes */}
-
-        <div className="mt-5">
-
-          <label className="block mb-2 font-medium">
-            Notes
-          </label>
-
-          <textarea
-            rows="4"
-            name="notes"
-            value={formData.notes}
+          <select
+            name="employee"
+            value={formData.employee}
             onChange={handleChange}
-            placeholder="Enter remarks..."
-            className="w-full border rounded-xl px-4 py-3 resize-none"
+            className="border rounded-lg p-3"
+            required
+          >
+
+            <option value="">
+              Select Employee
+            </option>
+
+            {employees.map((emp) => (
+
+              <option
+                key={emp._id}
+                value={emp._id}
+              >
+
+                {emp.fullName}
+
+              </option>
+
+            ))}
+
+          </select>
+
+          {/* Date */}
+
+          <input
+            type="date"
+            name="date"
+            value={formData.date}
+            onChange={handleChange}
+            className="border rounded-lg p-3"
+            required
           />
 
-        </div>
+          {/* Check In */}
 
-        {/* Footer */}
+          <input
+            type="time"
+            name="checkIn"
+            value={formData.checkIn}
+            onChange={handleChange}
+            className="border rounded-lg p-3"
+          />
 
-        <div className="flex justify-end gap-3 mt-8">
+          {/* Check Out */}
 
-          <button
-            onClick={onClose}
-            className="px-6 py-3 rounded-xl border hover:bg-slate-100"
+          <input
+            type="time"
+            name="checkOut"
+            value={formData.checkOut}
+            onChange={handleChange}
+            className="border rounded-lg p-3"
+          />
+
+          {/* Status */}
+
+          <select
+            name="status"
+            value={formData.status}
+            onChange={handleChange}
+            className="border rounded-lg p-3"
           >
-            Cancel
-          </button>
 
-          <button
-            className="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white"
-          >
-            Save Attendance
-          </button>
+            <option value="Present">
+              Present
+            </option>
 
-        </div>
+            <option value="Absent">
+              Absent
+            </option>
+
+            <option value="Half Day">
+              Half Day
+            </option>
+
+            <option value="Leave">
+              Leave
+            </option>
+
+          </select>
+
+          <div></div>
+
+          {/* Remarks */}
+
+          <textarea
+            name="remarks"
+            value={formData.remarks}
+            onChange={handleChange}
+            placeholder="Remarks"
+            rows="4"
+            className="border rounded-lg p-3 col-span-2"
+          />
+
+          {/* Buttons */}
+
+          <div className="col-span-2 flex justify-end gap-4">
+
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-6 py-3 rounded-lg border"
+            >
+
+              Cancel
+
+            </button>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="px-6 py-3 rounded-lg bg-blue-600 text-white"
+            >
+
+              {loading
+                ? "Saving..."
+                : attendance
+                ? "Update Attendance"
+                : "Save Attendance"}
+
+            </button>
+
+          </div>
+
+        </form>
 
       </div>
 
@@ -185,3 +264,4 @@ const AttendanceModal = ({ employee, onClose }) => {
 };
 
 export default AttendanceModal;
+

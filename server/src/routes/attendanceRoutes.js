@@ -7,10 +7,18 @@ const authorizeRoles = require("../middleware/roleMiddleware");
 const {
     markAttendance,
     getAttendance,
+    getAttendanceById,
     getAttendanceByEmployee,
+    updateAttendance,
+    deleteAttendance,
+    getAttendanceStats,
+    getMonthlyAttendance,
 } = require("../controllers/attendanceController");
 
-// Admin and Manager can mark attendance
+
+// =======================================
+// Mark Attendance
+// =======================================
 router.post(
     "/",
     protect,
@@ -18,7 +26,34 @@ router.post(
     markAttendance
 );
 
-// Admin, Manager and Employee can view all attendance
+
+// =======================================
+// Attendance Statistics
+// =======================================
+router.get(
+    "/stats",
+    protect,
+    authorizeRoles("admin", "manager"),
+    getAttendanceStats
+);
+
+
+// =======================================
+// Monthly Attendance Report
+// Example:
+// /attendance/monthly?month=7&year=2026
+// =======================================
+router.get(
+    "/monthly",
+    protect,
+    authorizeRoles("admin", "manager"),
+    getMonthlyAttendance
+);
+
+
+// =======================================
+// Get All Attendance
+// =======================================
 router.get(
     "/",
     protect,
@@ -26,12 +61,48 @@ router.get(
     getAttendance
 );
 
-// Attendance of a specific employee
+
+// =======================================
+// Get Attendance By Employee
+// =======================================
 router.get(
-    "/:employeeId",
+    "/employee/:employeeId",
     protect,
     authorizeRoles("admin", "manager", "employee"),
     getAttendanceByEmployee
+);
+
+
+// =======================================
+// Get Attendance By ID
+// =======================================
+router.get(
+    "/:id",
+    protect,
+    authorizeRoles("admin", "manager", "employee"),
+    getAttendanceById
+);
+
+
+// =======================================
+// Update Attendance
+// =======================================
+router.put(
+    "/:id",
+    protect,
+    authorizeRoles("admin", "manager"),
+    updateAttendance
+);
+
+
+// =======================================
+// Delete Attendance
+// =======================================
+router.delete(
+    "/:id",
+    protect,
+    authorizeRoles("admin"),
+    deleteAttendance
 );
 
 module.exports = router;

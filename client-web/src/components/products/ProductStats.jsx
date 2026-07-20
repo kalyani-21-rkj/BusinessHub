@@ -5,38 +5,74 @@ import {
   FaRupeeSign,
 } from "react-icons/fa";
 
-const stats = [
-  {
-    title: "Total Products",
-    value: "125",
-    icon: <FaBoxOpen />,
-    color: "bg-blue-200",
-    
-  },
-  {
-    title: "In Stock",
-    value: "98",
-    icon: <FaWarehouse />,
-    color: "bg-green-200",
-  },
-  {
-    title: "Low Stock",
-    value: "18",
-    icon: <FaExclamationTriangle />,
-    color: "bg-orange-200",
-  },
-  {
-    title: "Revenue",
-    value: "₹3.8L",
-    icon: <FaRupeeSign />,
-    color: "bg-purple-200",
-  },
-];
+import { useEffect, useState } from "react";
+import { getProductStats } from "../../services/productService";
 
 const ProductStats = () => {
+  const [stats, setStats] = useState({
+    totalProducts: 0,
+    inStock: 0,
+    lowStock: 0,
+    revenue: 0,
+  });
+
+  const [loading, setLoading] = useState(true);
+
+  const fetchStats = async () => {
+    try {
+      setLoading(true);
+
+      const res = await getProductStats();
+
+      setStats(
+        res.data.stats || {
+          totalProducts: 0,
+          inStock: 0,
+          lowStock: 0,
+          revenue: 0,
+        }
+      );
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchStats();
+  }, []);
+
+  const statsData = [
+    {
+      title: "Total Products",
+      value: stats.totalProducts,
+      icon: <FaBoxOpen />,
+      color: "bg-blue-200",
+    },
+    {
+      title: "In Stock",
+      value: stats.inStock,
+      icon: <FaWarehouse />,
+      color: "bg-green-200",
+    },
+    {
+      title: "Low Stock",
+      value: stats.lowStock,
+      icon: <FaExclamationTriangle />,
+      color: "bg-orange-200",
+    },
+    {
+      title: "Revenue",
+      value: `₹${stats.revenue}`,
+      icon: <FaRupeeSign />,
+      color: "bg-purple-200",
+    },
+  ];
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full h-auto ">
-      {stats.map((item) => (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full h-auto">
+      {statsData.map((item) => (
         <div
           key={item.title}
           className="bg-white rounded-2xl border-none shadow-sm border p-6 flex justify-between items-center hover:shadow-lg transition"
@@ -45,7 +81,7 @@ const ProductStats = () => {
             <p className="text-gray-500">{item.title}</p>
 
             <h2 className="text-3xl font-bold mt-2">
-              {item.value}
+              {loading ? "..." : item.value}
             </h2>
           </div>
 

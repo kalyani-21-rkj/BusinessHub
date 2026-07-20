@@ -12,37 +12,31 @@ const leadRoutes = require("./routes/leadRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
 const attendanceRoutes = require("./routes/attendanceRoutes");
 const leaveRoutes = require("./routes/leaveRoutes");
+console.log(leaveRoutes);
 const payrollRoutes = require("./routes/payrollRoutes");
 const invoiceRoutes = require("./routes/invoiceRoutes");
 const productRoutes = require("./routes/productRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
 const swaggerUI = require("swagger-ui-express");
 const swaggerSpec = require("./config/swagger");
-
+//const inventoryRoutes = require("./routes/inventoryRoutes");
 const errorHandler = require("./middleware/errorMiddleware");
+const purchaseRoutes = require("./routes/purchaseRoutes");
+const billRoutes = require("./routes/billRoutes");
 
 const app = express();
 
-// Security
 app.use(helmet());
 app.use(cors());
-
-// Request Parsing
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// Compress responses
 app.use(compression());
-
-// Logging (only in development)
 if (process.env.NODE_ENV !== "production") {
     app.use(morgan("dev"));
 }
-
-// Rate Limiting
 const limiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 100,
+    max: 10000,
     message: {
         success: false,
         message: "Too many requests. Try again later."
@@ -69,6 +63,9 @@ app.use("/api/payroll", payrollRoutes);
 app.use("/api/invoices", invoiceRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/payments", paymentRoutes);
+//app.use("/api/inventory", inventoryRoutes);
+app.use("/api/purchases", purchaseRoutes);
+app.use("/api/bills", billRoutes);
 
 // Home Route
 app.get("/", (req, res) => {

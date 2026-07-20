@@ -1,4 +1,4 @@
-import {Plus } from "react-icons/fa";
+import { FaPlus } from "react-icons/fa";
 
 const payments = [
   {
@@ -76,7 +76,7 @@ const Payments = () => {
 
         </div>
         <button className="w-full md:w-auto flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-xl shadow-sm transition-all active:scale-[0.99]">
-          <Plus size={18} className="stroke-[2.5]" />
+          <FaPlus size={18} className="stroke-[2.5]" />
           Add Product
         </button>
 

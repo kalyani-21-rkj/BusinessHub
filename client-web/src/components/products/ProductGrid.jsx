@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   FaEdit,
   FaTrash,
@@ -6,78 +7,71 @@ import {
   FaHeart,
   FaStar,
 } from "react-icons/fa";
+import EmptyProducts from "./EmptyProducts";
 
-const products = [
-  {
-    id: 1,
-    name: "MacBook Pro M3 (14-inch, 8GB Unified Memory, 512GB SSD) - Space Grey",
-    brand: "Apple",
-    category: "Laptop",
-    supplier: "Apple India",
-    sku: "APL-MBP-M3-001",
-    price: "1,49,999",
-    originalPrice: "1,69,900",
-    discount: "11% off",
-    rating: 4.9,
-    reviews: 285,
-    stock: 25,
-    image:
-      "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=500&q=80",
-  },
-  {
-    id: 2,
-    name: "Galaxy S24 Ultra AI Smartphone (Titanium Gray, 12GB RAM, 256GB Storage)",
-    brand: "Samsung",
-    category: "Mobile",
-    supplier: "Samsung Electronics",
-    sku: "SMS-S24U-002",
-    price: "1,19,999",
-    originalPrice: "1,34,999",
-    discount: "11% off",
-    rating: 4.8,
-    reviews: 412,
-    stock: 4,
-    image:
-      "https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?auto=format&fit=crop&w=500&q=80",
-  },
-  {
-    id: 3,
-    name: "Dell XPS 15 Laptop (Intel Core i7, 16GB RAM, 512GB SSD, NVIDIA GTX)",
-    brand: "Dell",
-    category: "Laptop",
-    supplier: "Dell India",
-    sku: "DEL-XPS15-003",
-    price: "1,35,000",
-    originalPrice: "1,55,000",
-    discount: "13% off",
-    rating: 4.7,
-    reviews: 198,
-    stock: 8,
-    image:
-      "https://images.unsplash.com/photo-1593642632823-8f785ba67e45?auto=format&fit=crop&w=500&q=80",
-  },
-];
 
-const ProductGrid = () => {
+
+const ProductGrid = ({
+  products = [],
+  loading,
+  onView,
+  onEdit,
+  onDelete,
+}) => {
+
+  const [likedProducts, setLikedProducts] = useState([]);
+
+const toggleLike = (id) => {
+  setLikedProducts((prev) =>
+    prev.includes(id)
+      ? prev.filter((item) => item !== id)
+      : [...prev, id]
+  );
+};
+  if (loading) {
+  return (
+    <div className="text-center py-20 text-slate-500">
+      Loading Products...
+    </div>
+  );
+}
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 p-1">
-      {products.map((product) => (
+      {products.length === 0 ? (
+  <div className="col-span-full">
+    <EmptyProducts />
+  </div>
+) : (
+      products.map((product) => (
         <div
-          key={product.id}
+          key={product._id}
           className="group flex flex-col min-h-[450px] bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 overflow-hidden"
         >
           {/* Image */}
           <div className="relative h-56 overflow-hidden bg-slate-50">
             <img
-              src={product.image}
-              alt={product.name}
-              className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
-            />
-
+            src={
+            product.image && product.image.trim() !== ""
+            ? product.image
+          : "/no-image.png"
+            }
+          alt={product.name}
+          className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+          onError={(e) => {
+          e.target.src = "/no-image.png";
+          }}
+          />
             {/* Wishlist */}
-            <button className="absolute top-3 right-3 bg-white p-2 rounded-full shadow hover:text-red-500 transition">
-              <FaHeart />
-            </button>
+            <button
+  onClick={() => toggleLike(product._id)}
+  className={`absolute top-3 right-3 bg-white p-2 rounded-full shadow transition ${
+    likedProducts.includes(product._id)
+      ? "text-red-500"
+      : "text-gray-500 hover:text-red-500"
+  }`}
+>
+  <FaHeart />
+</button>
 
             {/* Stock */}
             <span
@@ -125,22 +119,32 @@ const ProductGrid = () => {
             {/* Price */}
             <div className="mt-4 flex items-center gap-2 flex-wrap">
               <span className="text-2xl font-bold text-slate-900">
-                ₹{product.price}
+                ₹{product.sellingPrice}
               </span>
 
               <span className="line-through text-slate-400 text-sm">
-                ₹{product.originalPrice}
+                ₹{product.purchasePrice}
               </span>
 
               <span className="text-green-600 text-sm font-semibold">
-                {product.discount}
+                {product.sellingPrice > 0
+              ? Math.round(
+              (((product.sellingPrice || 0) -
+              (product.purchasePrice || 0)) /
+              product.sellingPrice) *
+              100
+             )
+          : 0}
+          % Margin
               </span>
             </div>
 
             {/* Save */}
             <div className="mt-2">
               <span className="inline-block bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full">
-                💰 Save ₹20,000
+                💰 Profit ₹
+                {(product.sellingPrice || 0) -
+                (product.purchasePrice || 0)}
               </span>
             </div>
 
@@ -159,7 +163,9 @@ const ProductGrid = () => {
               <div>
                 <span className="font-semibold">Profit :</span>{" "}
                 <span className="text-green-600 font-semibold">
-                  ₹25,000
+                  ₹
+                  {product.sellingPrice -
+                  product.purchasePrice}
                 </span>
               </div>
             </div>
@@ -167,21 +173,24 @@ const ProductGrid = () => {
             {/* Bottom */}
             <div className="mt-auto pt-5 border-t border-slate-100 flex items-center gap-2">
               <button
-                className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition"
-              >
-                <FaShoppingCart />
-                Add to Cart
-              </button>
+  onClick={() => alert("Cart Module Coming Soon")}
+  className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold transition"
+>
+  <FaShoppingCart />
+  Add to Cart
+</button>
 
               <button
-                title="View"
-                className="p-3 rounded-xl bg-slate-50 hover:bg-slate-100"
-              >
+               title="View"
+               onClick={() => onView(product)}
+               className="p-3 rounded-xl bg-slate-50 hover:bg-slate-100"
+>
                 <FaEye />
               </button>
 
               <button
                 title="Edit"
+                onClick={() => onEdit(product)}
                 className="p-3 rounded-xl bg-slate-50 hover:bg-blue-50 hover:text-blue-600"
               >
                 <FaEdit />
@@ -189,6 +198,7 @@ const ProductGrid = () => {
 
               <button
                 title="Delete"
+                 onClick={() => onDelete(product._id)}
                 className="p-3 rounded-xl bg-slate-50 hover:bg-red-50 hover:text-red-600"
               >
                 <FaTrash />
@@ -196,7 +206,8 @@ const ProductGrid = () => {
             </div>
           </div>
         </div>
-      ))}
+          ))
+)}
     </div>
   );
 };

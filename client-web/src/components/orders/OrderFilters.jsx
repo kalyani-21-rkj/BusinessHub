@@ -3,7 +3,7 @@ import { FaPlus } from "react-icons/fa";
 
 const OrderFilters = () => {
   return (
-    <div className="bg-none rounded-2xl border-none shadow-sm p-5">
+    <div className="bg-none rounded-2xl border-none ">
 
       <div className="flex flex-col lg:flex-row gap-4 justify-between">
 

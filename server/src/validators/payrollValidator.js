@@ -6,9 +6,9 @@ const payrollValidation = [
         .isMongoId()
         .withMessage("Invalid Employee ID"),
 
-    body("month")
-        .isInt({ min: 1, max: 12 })
-        .withMessage("Month must be between 1 and 12"),
+   body("month")
+  .matches(/^\d{4}-\d{2}$/)
+  .withMessage("Invalid month"),
 
     body("year")
         .isInt({ min: 2024 })

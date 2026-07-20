@@ -1,41 +1,88 @@
 const mongoose = require("mongoose");
 
 const productSchema = new mongoose.Schema(
-{
-    name:{
-        type:String,
-        required:true,
-        trim:true
+  {
+    name: {
+      type: String,
+      required: true,
+      trim: true,
     },
 
-    category:{
-        type:String,
-        required:true
+    brand: {
+      type: String,
+      required: true,
+      trim: true,
     },
 
-    description:{
-        type:String
+    category: {
+      type: String,
+      required: true,
+      trim: true,
     },
 
-    price:{
-        type:Number,
-        required:true
+    sku: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
     },
 
-    stock:{
-        type:Number,
-        default:0
+    supplier: {
+      type: String,
+      required: true,
+      trim: true,
     },
 
-    status:{
-        type:String,
-        enum:["Available","Out Of Stock"],
-        default:"Available"
-    }
+    purchasePrice: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
 
+    stock: {
+      type: Number,
+      required: true,
+      default: 0,
+      min: 0,
+    },
+
+    image: {
+    type: String,
+    default: "",
+   
+    
 },
-{
-    timestamps:true
+
+    description: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+
+    status: {
+      type: String,
+      enum: ["Available", "Out Of Stock"],
+      default: "Available",
+    },
+    sellingPrice: {
+    type: Number,
+    required: true,
+    min: 0,
+},
+  },
+  {
+    timestamps: true,
+  }
+);
+
+productSchema.pre("save", function () {
+  if (this.stock <= 0) {
+    this.status = "Out Of Stock";
+  } else {
+    this.status = "Available";
+  }
+
+  
 });
 
-module.exports = mongoose.model("Product",productSchema);
+module.exports = mongoose.model("Product", productSchema);

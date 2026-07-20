@@ -1,8 +1,12 @@
 import API from "./api";
 
-export const getEmployees = (page = 1, search = "") => {
-  return API.get(`/employees?page=${page}&search=${search}`);
-};
+// Employee Page
+export const getEmployees = (page = 1, keyword = "") =>
+  API.get(`/employees?page=${page}&search=${keyword}`);
+
+// Employee Dropdown
+export const getAllEmployees = () =>
+  API.get("/employees?limit=1000");
 
 export const addEmployee = (data) => {
   return API.post("/employees", data);
@@ -19,6 +23,7 @@ export const deleteEmployee = (id) => {
 export const getEmployee = (id) => {
   return API.get(`/employees/${id}`);
 };
+
 export const getEmployeeStats = () => {
-    return API.get("/employees/stats");
+  return API.get("/employees/stats");
 };

@@ -8,25 +8,39 @@ import {
 const PurchaseDetailsModal = ({ purchase, onClose }) => {
   if (!purchase) return null;
 
+  const subtotal =
+    purchase.products?.reduce(
+      (sum, item) => sum + item.purchasePrice * item.quantity,
+      0
+    ) || 0;
+
+  const gstAmount =
+    purchase.products?.reduce(
+      (sum, item) =>
+        sum +
+        (item.purchasePrice *
+          item.quantity *
+          (item.gst || 0)) /
+          100,
+      0
+    ) || 0;
+
   return (
     <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-6">
 
       <div className="bg-white rounded-2xl w-full max-w-5xl shadow-2xl overflow-hidden">
 
         {/* Header */}
-
         <div className="flex justify-between items-center px-8 py-5 border-b">
 
           <div>
-
             <h2 className="text-2xl font-bold">
-              {purchase.poNo}
+              Purchase #{purchase._id?.slice(-6)}
             </h2>
 
             <p className="text-slate-500">
               Purchase Order Details
             </p>
-
           </div>
 
           <button
@@ -58,32 +72,22 @@ const PurchaseDetailsModal = ({ purchase, onClose }) => {
                   {purchase.supplier}
                 </p>
 
-                <p>GST : 27ABCDE1234F1Z5</p>
-
-                <p>Email : supplier@gmail.com</p>
-
-                <p>Phone : +91 9876543210</p>
-
-              </div>
-
-            </div>
-
-            <div>
-
-              <h3 className="font-semibold mb-3">
-                Warehouse
-              </h3>
-
-              <div className="bg-slate-50 rounded-xl p-5">
-
-                <p className="font-medium">
-                  {purchase.warehouse} Warehouse
+                <p>
+                  Warehouse : {purchase.warehouse}
                 </p>
 
-                <p className="text-slate-500 mt-1">
-                  Expected Delivery :
+                <p>
+                  Status : {purchase.status}
+                </p>
+
+                <p>
+                  Expected :
                   {" "}
-                  {purchase.expected}
+                  {purchase.expectedDate
+                    ? new Date(
+                        purchase.expectedDate
+                      ).toLocaleDateString()
+                    : "-"}
                 </p>
 
               </div>
@@ -93,15 +97,12 @@ const PurchaseDetailsModal = ({ purchase, onClose }) => {
             <div>
 
               <h3 className="font-semibold mb-3">
-                Invoice
+                Notes
               </h3>
 
               <div className="bg-slate-50 rounded-xl p-5">
 
-                Invoice No :
-                <span className="font-semibold ml-2">
-                  INV-45896
-                </span>
+                {purchase.notes || "No Notes"}
 
               </div>
 
@@ -121,29 +122,54 @@ const PurchaseDetailsModal = ({ purchase, onClose }) => {
 
               <div className="border rounded-xl divide-y">
 
-                <div className="flex justify-between p-4">
+                {purchase.products?.length ? (
 
-                  <span>MacBook Pro</span>
+                  purchase.products.map(
+                    (item, index) => (
 
-                  <span>x15</span>
+                      <div
+                        key={index}
+                        className="flex justify-between p-4"
+                      >
 
-                </div>
+                        <div>
 
-                <div className="flex justify-between p-4">
+                          <p className="font-semibold">
+                            {item.product?.name}
+                          </p>
 
-                  <span>Magic Mouse</span>
+                          <p className="text-sm text-slate-500">
+                            ₹{item.purchasePrice} × {item.quantity}
+                          </p>
 
-                  <span>x20</span>
+                        </div>
 
-                </div>
+                        <div className="text-right">
 
-                <div className="flex justify-between p-4">
+                          <p>
+                            Qty : {item.quantity}
+                          </p>
 
-                  <span>Magic Keyboard</span>
+                          <p className="font-semibold">
+                            ₹
+                            {item.purchasePrice *
+                              item.quantity}
+                          </p>
 
-                  <span>x10</span>
+                        </div>
 
-                </div>
+                      </div>
+
+                    )
+                  )
+
+                ) : (
+
+                  <div className="p-4 text-slate-500">
+                    No Products
+                  </div>
+
+                )}
 
               </div>
 
@@ -158,27 +184,13 @@ const PurchaseDetailsModal = ({ purchase, onClose }) => {
               <div className="bg-slate-50 rounded-xl p-5 space-y-3">
 
                 <div className="flex justify-between">
-
                   <span>Subtotal</span>
-
-                  <span>₹10,60,000</span>
-
+                  <span>₹{subtotal}</span>
                 </div>
 
                 <div className="flex justify-between">
-
-                  <span>GST (18%)</span>
-
-                  <span>₹1,90,800</span>
-
-                </div>
-
-                <div className="flex justify-between">
-
-                  <span>Shipping</span>
-
-                  <span>₹5,000</span>
-
+                  <span>GST</span>
+                  <span>₹{gstAmount}</span>
                 </div>
 
                 <hr />
@@ -187,7 +199,9 @@ const PurchaseDetailsModal = ({ purchase, onClose }) => {
 
                   <span>Total</span>
 
-                  <span>{purchase.amount}</span>
+                  <span>
+                    ₹{purchase.totalAmount}
+                  </span>
 
                 </div>
 
@@ -210,33 +224,22 @@ const PurchaseDetailsModal = ({ purchase, onClose }) => {
           <div className="grid md:grid-cols-4 gap-4">
 
             <div className="bg-green-50 rounded-xl p-4 text-center">
-
               <FaCheckCircle className="mx-auto text-green-600 text-xl mb-2" />
-
               Created
-
             </div>
 
             <div className="bg-green-50 rounded-xl p-4 text-center">
-
               <FaCheckCircle className="mx-auto text-green-600 text-xl mb-2" />
-
               Approved
-
             </div>
 
             <div className="bg-blue-50 rounded-xl p-4 text-center">
-
               <FaTruck className="mx-auto text-blue-600 text-xl mb-2" />
-
               Supplier Shipped
-
             </div>
 
             <div className="bg-yellow-50 rounded-xl p-4 text-center">
-
-              Warehouse Receiving
-
+              {purchase.status}
             </div>
 
           </div>
@@ -254,18 +257,17 @@ const PurchaseDetailsModal = ({ purchase, onClose }) => {
             Close
           </button>
 
-          <button className="px-6 py-3 rounded-xl bg-green-600 hover:bg-green-700 text-white">
-
+          <button
+            className="px-6 py-3 rounded-xl bg-green-600 hover:bg-green-700 text-white"
+          >
             Receive Stock
-
           </button>
 
-          <button className="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2">
-
+          <button
+            className="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2"
+          >
             <FaPrint />
-
             Print PO
-
           </button>
 
         </div>

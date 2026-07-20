@@ -1,38 +1,126 @@
+/* eslint-disable react-hooks/set-state-in-effect */
+
 import { Search, Plus } from "lucide-react";
+import { useEffect, useState } from "react";
+
 import CustomerTable from "../../components/customers/CustomerTable";
+import CustomerModal from "../../components/customers/CustomerModal";
+
+import { getCustomers } from "../../services/customerService";
 
 const Customers = () => {
-  return (
-    <div className="p-8 flex flex-col gap-6 w-full">
 
-      {/* Top Action Bar Container */}
+  const [customers, setCustomers] = useState([]);
+  const [keyword, setKeyword] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const [openModal, setOpenModal] = useState(false);
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
+
+  const fetchCustomers = async (search = "") => {
+
+    try {
+
+      setLoading(true);
+
+      const res = await getCustomers(1, search);
+
+      setCustomers(res.data.customers || []);
+
+    } catch (err) {
+
+      console.log(err);
+
+    } finally {
+
+      setLoading(false);
+
+    }
+
+  };
+
+  useEffect(() => {
+
+    fetchCustomers();
+
+  }, []);
+
+  useEffect(() => {
+
+    const timer = setTimeout(() => {
+
+      fetchCustomers(keyword);
+
+    }, 400);
+
+    return () => clearTimeout(timer);
+
+  }, [keyword]);
+
+  return (
+
+    <div className="flex flex-col gap-8 p-6 w-full">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+    
+      </div>
+
       <div className="flex justify-between items-center w-full">
 
-        {/* Scaled-up Search Input Wrapper */}
         <div className="relative w-[480px]">
-          <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+
+          <Search className="absolute left-70 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+
           <input
             type="text"
             placeholder="Search customers..."
-            className="w-full pl-12 pr-4 py-3 text-base rounded-xl border border-slate-200 bg-white placeholder-slate-400 text-slate-800 focus:outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all shadow-sm"
+            value={keyword}
+            onChange={(e)=>setKeyword(e.target.value)}
+            className="w-full sm:w-80 h-8 pl-4 pr-4 rounded-xl border border-slate-200 bg-white placeholder-slate-400 text-slate-700 outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all shadow-sm"
           />
+
         </div>
 
-        {/* Balanced Pro-Tier Action Button */}
-        <button className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 active:scale-[0.99] text-white font-semibold text-base px-6 py-3 rounded-xl shadow-md hover:shadow-lg transition-all">
-          <Plus size={20} className="stroke-[2.5]" />
+        <button
+          onClick={()=>{
+            setSelectedCustomer(null);
+            setOpenModal(true);
+          }}
+          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-xl"
+        >
+
+          <Plus size={20} />
+
           Add Customer
+
         </button>
 
       </div>
 
-      {/* Table Solid Card Wrapper */}
-      <div className="bg-white rounded-1xl shadow-sm border border-slate-100 overflow-hidden w-full">
-        <CustomerTable />
+      <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
+
+        <CustomerTable
+          customers={customers}
+          loading={loading}
+          onEdit={(customer)=>{
+            setSelectedCustomer(customer);
+            setOpenModal(true);
+          }}
+          refreshCustomers={()=>fetchCustomers(keyword)}
+        />
+
       </div>
 
+      <CustomerModal
+        open={openModal}
+        onClose={()=>setOpenModal(false)}
+        customer={selectedCustomer}
+        onSuccess={()=>fetchCustomers(keyword)}
+      />
+
     </div>
+
   );
+
 };
 
 export default Customers;

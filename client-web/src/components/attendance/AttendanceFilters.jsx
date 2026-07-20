@@ -1,56 +1,103 @@
 import { FaSearch, FaPlus } from "react-icons/fa";
 
-const AttendanceFilters = ({ onMarkAttendance }) => {
+const AttendanceFilters = ({
+  keyword,
+  setKeyword,
+  status,
+  setStatus,
+  department,
+  setDepartment,
+  date,
+  setDate,
+  onMarkAttendance,
+}) => {
   return (
-    <div className="bg-none rounded-1xl  border border-slate-200 p-5">
-      <div className="flex flex-wrap items-center gap-4">
+    <div className=" rounded-xl p-5 ">
+
+      <div className="flex flex-wrap gap-4 items-center">
 
         {/* Search */}
-        <div className="relative flex-1 min-w-[280px]">
-          <FaSearch className="absolute left-70 top-1/2 -translate-y-1/2 text-slate-400" />
+
+        <div className="relative">
+
+          <FaSearch className="absolute left-65 top-1/2 -translate-y-1/2 text-slate-400" />
 
           <input
             type="text"
             placeholder="Search Employee..."
-            className="w-full sm:w-80 h-8 pl-4 pr-4 rounded-xl border border-slate-200 bg-white placeholder-slate-400 text-slate-700 outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all shadow-sm"
+            value={keyword}
+            onChange={(e) => setKeyword(e.target.value)}
+            className=" bg-white w-72 h-7 pl-10 pr-4 py-2 rounded-xl border border-slate-300"
           />
+
         </div>
 
         {/* Department */}
-        <select className="h-8 min-w-[180px] rounded-xl border border-slate-300 px-4 bg-white">
-          <option>All Departments</option>
-          <option>HR</option>
-          <option>Sales</option>
-          <option>Inventory</option>
-          <option>Finance</option>
-          <option>IT</option>
+
+        <select
+          value={department}
+          onChange={(e) => setDepartment(e.target.value)}
+          className=" bg-white h-7 px-4 py-2 rounded-xl border border-slate-300"
+        >
+
+          <option value="">All Departments</option>
+
+          <option value="HR">HR</option>
+
+          <option value="Sales">Sales</option>
+
+          <option value="Inventory">Inventory</option>
+
+          <option value="Finance">Finance</option>
+
+          <option value="IT">IT</option>
+
         </select>
 
         {/* Date */}
+
         <input
           type="date"
-          className="h-8 min-w-[170px] rounded-xl border border-slate-300 px-4 bg-white"
+          value={date}
+          onChange={(e) => setDate(e.target.value)}
+          className=" bg-white h-7 px-4 py-2 rounded-xl border border-slate-300"
         />
 
         {/* Status */}
-        <select className="h-8 min-w-[170px] rounded-xl border border-slate-300 px-4 bg-white">
-          <option>All Status</option>
-          <option>Present</option>
-          <option>Absent</option>
-          <option>Late</option>
-          <option>Leave</option>
+
+        <select
+          value={status}
+          onChange={(e) => setStatus(e.target.value)}
+          className=" bg-white px-4 py-2 h-7  rounded-xl border border-slate-300"
+        >
+
+          <option value="">All Status</option>
+
+          <option value="Present">Present</option>
+
+          <option value="Absent">Absent</option>
+
+          <option value="Half Day">Half Day</option>
+
+          <option value="Leave">Leave</option>
+
         </select>
 
         {/* Button */}
+
         <button
           onClick={onMarkAttendance}
-          className="h-8 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold flex items-center gap-2 transition"
+          className="ml-auto flex items-center h-7 gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl"
         >
+
           <FaPlus />
+
           Mark Attendance
+
         </button>
 
       </div>
+
     </div>
   );
 };

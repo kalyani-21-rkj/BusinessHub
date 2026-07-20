@@ -1,5 +1,12 @@
 const express = require("express");
+
 const router = express.Router();
+
+const protect = require("../middleware/authMiddleware");
+const authorizeRoles = require("../middleware/roleMiddleware");
+
+const validate = require("../middleware/validate");
+const productValidation = require("../validators/productValidator");
 
 const {
     addProduct,
@@ -7,42 +14,67 @@ const {
     getProductById,
     updateProduct,
     deleteProduct,
+    getProductStats,
+    addStock,
 } = require("../controllers/productController");
 
-const protect = require("../middleware/authMiddleware");
-const authorizeRoles = require("../middleware/roleMiddleware");
-const productValidation = require("../validators/productValidator");
-const validate = require("../middleware/validate");
+// Product Statistics
+router.get(
+  "/stats",
+  protect,
+  authorizeRoles("admin", "manager"),
+  getProductStats
+);
 
-console.log("protect:", typeof protect);
-console.log("authorizeRoles:", typeof authorizeRoles);
-console.log("productValidation:", Array.isArray(productValidation));
-console.log("validate:", typeof validate);
-console.log("addProduct:", typeof addProduct);
-console.log(productValidation);
+// Get All Products
+router.get(
+  "/",
+  protect,
+  authorizeRoles("admin", "manager"),
+  getProducts
+);
 
+// Get Single Product
+router.get(
+  "/:id",
+  protect,
+  authorizeRoles("admin", "manager"),
+  getProductById
+);
+
+// Add Product
 router.post(
-    "/",
-    protect,
-    authorizeRoles("admin"),
-    productValidation,
-    validate,
-    addProduct
+  "/",
+  protect,
+  authorizeRoles("admin"),
+  productValidation,
+  validate,
+  addProduct
 );
 
-router.get("/", protect, authorizeRoles("admin", "manager"), getProducts);
-
-router.get("/:id", protect, authorizeRoles("admin", "manager"), getProductById);
-
+// Update Product
 router.put(
-    "/:id",
-    protect,
-    authorizeRoles("admin"),
-    productValidation,
-    validate,
-    updateProduct
+  "/:id",
+  protect,
+  authorizeRoles("admin"),
+  productValidation,
+  validate,
+  updateProduct
 );
 
-router.delete("/:id", protect, authorizeRoles("admin", "manager"), deleteProduct);
+router.patch(
+    "/:id/stock",
+    protect,
+    authorizeRoles("admin"),
+    addStock
+);
+
+// Delete Product
+router.delete(
+  "/:id",
+  protect,
+  authorizeRoles("admin"),
+  deleteProduct
+);
 
 module.exports = router;

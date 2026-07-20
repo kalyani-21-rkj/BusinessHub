@@ -1,6 +1,11 @@
 import { FaEdit, FaTrash, FaUserCircle } from "react-icons/fa";
 
-const EmployeeTable = ({ employees = [], loading }) => {
+const EmployeeTable = ({
+  employees,
+  loading,
+  onEdit,
+  onDelete,
+}) => {
 
   if (loading) {
     return (
@@ -98,13 +103,18 @@ const EmployeeTable = ({ employees = [], loading }) => {
 
                 <div className="flex justify-center gap-3">
 
-                  <button className="text-blue-600 hover:text-blue-800">
-                    <FaEdit />
-                  </button>
+                  <button
+               onClick={() => onEdit(employee)}
+              className="text-blue-600 hover:text-blue-800"
+              >
+             <FaEdit />
+                 </button>
 
-                  <button className="text-red-600 hover:text-red-800">
-                    <FaTrash />
-                  </button>
+                 <button onClick={() => onDelete(employee._id)}
+                  className="text-red-600 hover:text-red-800"
+>
+                  <FaTrash />
+                </button>
 
                 </div>
 

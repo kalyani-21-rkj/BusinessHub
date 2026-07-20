@@ -15,7 +15,7 @@ const LeaveFilters = ({ onApplyLeave }) => {
           <input
             type="text"
             placeholder="Search Employee..."
-            className="w-full sm:w-80 h-8 pl-4 pr-4 rounded-xl border border-slate-200 bg-white placeholder-slate-400 text-slate-700 outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all shadow-sm"
+            className=" w-full sm:w-80 h-8 pl-4 pr-4 rounded-xl  bg-white placeholder-slate-400 text-slate-700 outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all shadow-sm"
           />
 
         </div>

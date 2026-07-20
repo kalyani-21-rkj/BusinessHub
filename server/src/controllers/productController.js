@@ -33,14 +33,35 @@ const getProducts = asyncHandler(async (req, res) => {
 
     const totalProducts = await Product.countDocuments();
 
-    const apiFeatures = new APIFeatures(
-        Product.find(),
-        req.query
-    )
-        .search()
-        .filter()
-        .sort()
-        .paginate(resultPerPage);
+    let query = Product.find();
+
+if (req.query.search) {
+    query = query.find({
+        name: {
+            $regex: req.query.search,
+            $options: "i",
+        },
+    });
+}
+
+if (req.query.category) {
+    query = query.find({
+        category: req.query.category,
+    });
+}
+
+if (req.query.brand) {
+    query = query.find({
+        brand: req.query.brand,
+    });
+}
+
+const apiFeatures = new APIFeatures(
+    query,
+    req.query
+)
+.sort()
+.paginate(resultPerPage);
 
     const products = await apiFeatures.query;
 
@@ -74,22 +95,69 @@ const getProductById = asyncHandler(async (req, res) => {
 // Update Product
 const updateProduct = asyncHandler(async (req, res) => {
 
+    const existingProduct = await Product.findById(req.params.id);
+
+    if (!existingProduct) {
+        throw new ApiError(404, "Product Not Found");
+    }
+
+    // Use old values if they are not being updated
+    const purchasePrice =
+        req.body.purchasePrice !== undefined
+            ? Number(req.body.purchasePrice)
+            : existingProduct.purchasePrice;
+
+    const sellingPrice =
+        req.body.sellingPrice !== undefined
+            ? Number(req.body.sellingPrice)
+            : existingProduct.sellingPrice;
+
+    if (sellingPrice < purchasePrice) {
+        throw new ApiError(
+            400,
+            "Selling Price must be greater than or equal to Purchase Price"
+        );
+    }
+
     const product = await Product.findByIdAndUpdate(
         req.params.id,
         req.body,
         {
-            returnDocument: "after",
+            new: true,
             runValidators: true,
         }
     );
+
+    res.status(200).json({
+        success: true,
+        message: "Product Updated Successfully",
+        product,
+    });
+
+});
+
+// Add Stock
+const addStock = asyncHandler(async (req, res) => {
+
+    const { quantity } = req.body;
+
+    const product = await Product.findById(req.params.id);
 
     if (!product) {
         throw new ApiError(404, "Product Not Found");
     }
 
+    product.stock += Number(quantity);
+
+    if (product.stock > 0) {
+        product.status = "Available";
+    }
+
+    await product.save();
+
     res.status(200).json({
         success: true,
-        message: "Product Updated Successfully",
+        message: "Stock Updated Successfully",
         product,
     });
 
@@ -110,6 +178,43 @@ const deleteProduct = asyncHandler(async (req, res) => {
     });
 
 });
+const getProductStats = asyncHandler(async (req, res) => {
+
+    const totalProducts = await Product.countDocuments();
+
+    const inStock = await Product.countDocuments({
+        stock: { $gt: 5 },
+    });
+
+    const lowStock = await Product.countDocuments({
+        stock: { $lte: 5 },
+    });
+
+    const revenue = await Product.aggregate([
+        {
+            $group: {
+                _id: null,
+                total: {
+                    $sum: "$sellingPrice",
+                },
+            },
+        },
+    ]);
+
+    res.status(200).json({
+        success: true,
+        stats: {
+            totalProducts,
+            inStock,
+            lowStock,
+            revenue:
+                revenue.length > 0
+                    ? revenue[0].total
+                    : 0,
+        },
+    });
+
+});
 
 module.exports = {
     addProduct,
@@ -117,4 +222,6 @@ module.exports = {
     getProductById,
     updateProduct,
     deleteProduct,
+    getProductStats,
+    addStock,
 };

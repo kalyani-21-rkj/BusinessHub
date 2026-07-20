@@ -17,9 +17,14 @@ const DashboardLayout = ({ children }) => {
         <Navbar />
 
         {/* Page Content View */}
-        <main className="flex-1 p-10 pb-0">
-          {children}
-        </main>
+        <main className="flex-1 pb-0">
+      <div
+        className="max-w-[1600px] py-6 px-6"
+        style={{ marginLeft: "10px", marginRight: "20px" }}
+      >
+        {children}
+      </div>
+    </main>
 
         {/* 
           THE ABSOLUTE FIX: 

@@ -97,10 +97,39 @@ const deleteCustomer = asyncHandler(async (req, res) => {
 
 });
 
+const getCustomerStats = asyncHandler(async (req, res) => {
+
+    const totalCustomers = await Customer.countDocuments();
+
+    const totalLeads = await Customer.countDocuments({
+        status: "Lead",
+    });
+
+    const activeCustomers = await Customer.countDocuments({
+        status: "Customer",
+    });
+
+    const inactiveCustomers = await Customer.countDocuments({
+        status: "Inactive",
+    });
+
+    res.status(200).json({
+        success: true,
+        stats: {
+            totalCustomers,
+            totalLeads,
+            activeCustomers,
+            inactiveCustomers,
+        },
+    });
+
+});
+
 module.exports = {
     addCustomer,
     getCustomers,
     getCustomerById,
     updateCustomer,
     deleteCustomer,
+    getCustomerStats,
 };
