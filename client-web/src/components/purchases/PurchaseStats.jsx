@@ -1,3 +1,7 @@
+/* eslint-disable react-hooks/set-state-in-effect */
+
+import { useEffect, useState } from "react";
+
 import {
   FaShoppingCart,
   FaClock,
@@ -5,72 +9,120 @@ import {
   FaRupeeSign,
 } from "react-icons/fa";
 
-const stats = [
-  {
-    title: "Total Purchases",
-    value: "145",
-    icon: <FaShoppingCart />,
-    bg: "bg-blue-100",
-    color: "text-blue-600",
-  },
-  {
-    title: "Pending",
-    value: "18",
-    icon: <FaClock />,
-    bg: "bg-yellow-100",
-    color: "text-yellow-600",
-  },
-  {
-    title: "Received",
-    value: "127",
-    icon: <FaCheckCircle />,
-    bg: "bg-green-100",
-    color: "text-green-600",
-  },
-  {
-    title: "Total Amount",
-    value: "₹18.5L",
-    icon: <FaRupeeSign />,
-    bg: "bg-purple-100",
-    color: "text-purple-600",
-  },
-];
+import { getPurchases } from "../../services/purchaseService";
 
 const PurchaseStats = () => {
+  const [stats, setStats] = useState({
+    totalPurchases: 0,
+    pending: 0,
+    received: 0,
+    amount: 0,
+  });
+
+  const [loading, setLoading] = useState(true);
+
+  const fetchStats = async () => {
+    try {
+      const res = await getPurchases();
+
+      const purchases = res.data.purchases || [];
+
+      const pending = purchases.filter(
+        (p) =>
+          p.status === "Pending" ||
+          p.status === "Receiving"
+      ).length;
+
+      const received = purchases.filter(
+        (p) =>
+          p.status === "Received" ||
+          p.status === "Completed"
+      ).length;
+
+      const amount = purchases.reduce(
+        (sum, item) =>
+          sum + Number(item.totalAmount || 0),
+        0
+      );
+
+      setStats({
+        totalPurchases: purchases.length,
+        pending,
+        received,
+        amount,
+      });
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchStats();
+  }, []);
+
+  const cards = [
+    {
+      title: "Total Purchases",
+      value: stats.totalPurchases,
+      icon: <FaShoppingCart />,
+      color: "bg-blue-500",
+    },
+    {
+      title: "Pending",
+      value: stats.pending,
+      icon: <FaClock />,
+      color: "bg-yellow-500",
+    },
+    {
+      title: "Received",
+      value: stats.received,
+      icon: <FaCheckCircle />,
+      color: "bg-green-500",
+    },
+    {
+      title: "Total Amount",
+      value: `₹${Number(stats.amount).toLocaleString(
+        "en-IN"
+      )}`,
+      icon: <FaRupeeSign />,
+      color: "bg-purple-500",
+    },
+  ];
+
+  if (loading) {
+    return (
+      <div className="bg-white rounded-2xl shadow-lg p-6 text-center">
+        Loading Statistics...
+      </div>
+    );
+  }
+
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
-
-      {stats.map((item) => (
-
+    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+      {cards.map((card) => (
         <div
-          key={item.title}
-          className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6"
+          key={card.title}
+          className="bg-white mb-10 rounded-2xl shadow-sm p-6 h-32 flex justify-between items-center hover:shadow-xl transition-all duration-300"
         >
-          <div className="flex justify-between items-center">
+          <div>
+            <p className="text-gray-500 text-sm">
+              {card.title}
+            </p>
 
-            <div>
+            <h2 className="text-3xl font-bold mt-2 text-gray-800">
+              {card.value}
+            </h2>
+          </div>
 
-              <p className="text-sm text-slate-500">
-                {item.title}
-              </p>
-
-              <h2 className="text-3xl font-bold mt-2">
-                {item.value}
-              </h2>
-
-            </div>
-
-            <div
-              className={`w-14 h-14 rounded-xl flex items-center justify-center text-2xl ${item.bg} ${item.color}`}
-            >
-              {item.icon}
-            </div>
-
+          <div
+            className={`w-16 h-16 rounded-2xl flex items-center justify-center text-white text-2xl ${card.color}`}
+          >
+            {card.icon}
           </div>
         </div>
-
       ))}
-
     </div>
   );
 };

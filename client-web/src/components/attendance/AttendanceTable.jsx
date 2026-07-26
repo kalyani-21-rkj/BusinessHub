@@ -1,8 +1,23 @@
 import {
-  FaEdit,
-  FaTrash,
-  FaUserCircle,
-} from "react-icons/fa";
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  Paper,
+  Avatar,
+  Box,
+  Typography,
+  Chip,
+  IconButton,
+  Tooltip,
+  CircularProgress,
+} from "@mui/material";
+
+import {
+  Edit,
+  Delete,
+} from "@mui/icons-material";
 
 import { deleteAttendance } from "../../services/attendanceService";
 
@@ -40,205 +55,249 @@ const AttendanceTable = ({
   };
 
   if (loading) {
-
     return (
-      <div className="p-10 text-center">
-        Loading...
-      </div>
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        py={8}
+      >
+        <CircularProgress />
+      </Box>
     );
-
   }
 
   if (attendance.length === 0) {
-
     return (
-      <div className="p-10 text-center">
+      <Typography
+        align="center"
+        sx={{ py: 8 }}
+      >
         No Attendance Found
-      </div>
+      </Typography>
     );
-
   }
 
   return (
+    <Paper
+      elevation={0}
+      sx={{
+        borderRadius: 4,
+        overflow: "hidden",
+        border: "1px solid #E5E7EB",
+      }}
+    >
 
-    <div className="overflow-x-auto">
+      <Table>
 
-      <table className="w-full">
+        <TableHead>
 
-        <thead className="bg-slate-100">
+          <TableRow
+            sx={{
+              bgcolor: "#F8FAFC",
+            }}
+          >
 
-          <tr className="text-left text-sm uppercase text-slate-600">
-
-            <th className="px-6 py-4">
+            <TableCell sx={{ fontWeight: 700 }}>
               Employee
-            </th>
+            </TableCell>
 
-            <th className="px-6 py-4">
+            <TableCell sx={{ fontWeight: 700 }}>
               Department
-            </th>
+            </TableCell>
 
-            <th className="px-6 py-4">
+            <TableCell sx={{ fontWeight: 700 }}>
               Designation
-            </th>
+            </TableCell>
 
-            <th className="px-6 py-4">
+            <TableCell sx={{ fontWeight: 700 }}>
               Date
-            </th>
+            </TableCell>
 
-            <th className="px-6 py-4">
+            <TableCell sx={{ fontWeight: 700 }}>
               Check In
-            </th>
+            </TableCell>
 
-            <th className="px-6 py-4">
+            <TableCell sx={{ fontWeight: 700 }}>
               Check Out
-            </th>
+            </TableCell>
 
-            <th className="px-6 py-4">
+            <TableCell sx={{ fontWeight: 700 }}>
               Status
-            </th>
+            </TableCell>
 
-            <th className="px-6 py-4">
+            <TableCell sx={{ fontWeight: 700 }}>
               Remarks
-            </th>
+            </TableCell>
 
-            <th className="px-6 py-4 text-center">
+            <TableCell
+              align="center"
+              sx={{ fontWeight: 700 }}
+            >
               Actions
-            </th>
+            </TableCell>
 
-          </tr>
+          </TableRow>
 
-        </thead>
+        </TableHead>
 
-        <tbody>
+        <TableBody>
 
           {attendance.map((record) => (
 
-            <tr
+            <TableRow
               key={record._id}
-              className="border-b hover:bg-slate-50"
+              hover
+              sx={{
+                transition: ".25s",
+                "&:hover": {
+                  bgcolor: "#F9FAFB",
+                },
+              }}
             >
 
-              <td className="px-6 py-5">
+              {/* Employee */}
 
-                <div className="flex items-center gap-4">
+              <TableCell>
 
-                  <FaUserCircle className="text-4xl text-blue-600" />
-
-                  <div>
-
-                    <h3 className="font-semibold">
-
-                      {record.employee?.fullName}
-
-                    </h3>
-
-                  </div>
-
-                </div>
-
-              </td>
-
-              <td className="px-6 py-5">
-
-                {record.employee?.department}
-
-              </td>
-
-              <td className="px-6 py-5">
-
-                {record.employee?.designation}
-
-              </td>
-
-              <td className="px-6 py-5">
-
-                {new Date(record.date).toLocaleDateString()}
-
-              </td>
-
-              <td className="px-6 py-5">
-
-                {record.checkIn || "--"}
-
-              </td>
-
-              <td className="px-6 py-5">
-
-                {record.checkOut || "--"}
-
-              </td>
-
-              <td className="px-6 py-5">
-
-                <span
-                  className={`px-3 py-1 rounded-full text-xs font-semibold
-                  ${
-                    record.status === "Present"
-                      ? "bg-green-100 text-green-700"
-                      : record.status === "Absent"
-                      ? "bg-red-100 text-red-700"
-                      : record.status === "Half Day"
-                      ? "bg-yellow-100 text-yellow-700"
-                      : "bg-blue-100 text-blue-700"
-                  }`}
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  gap={2}
                 >
 
-                  {record.status}
+                  <Avatar
+                    sx={{
+                      bgcolor: "#2563EB",
+                      width: 44,
+                      height: 44,
+                      fontWeight: 700,
+                    }}
+                  >
+                    {record.employee?.fullName?.charAt(0)}
+                  </Avatar>
 
-                </span>
+                  <Typography fontWeight={600}>
+                    {record.employee?.fullName}
+                  </Typography>
 
-              </td>
+                </Box>
 
-              <td className="px-6 py-5">
+              </TableCell>
 
+              {/* Department */}
+
+              <TableCell>
+                {record.employee?.department}
+              </TableCell>
+
+              {/* Designation */}
+
+              <TableCell>
+                {record.employee?.designation}
+              </TableCell>
+
+              {/* Date */}
+
+              <TableCell>
+                {new Date(record.date).toLocaleDateString()}
+              </TableCell>
+
+              {/* Check In */}
+
+              <TableCell>
+                {record.checkIn || "--"}
+              </TableCell>
+
+              {/* Check Out */}
+
+              <TableCell>
+                {record.checkOut || "--"}
+              </TableCell>
+
+              {/* Status */}
+
+              <TableCell>
+
+                <Chip
+                  label={record.status}
+                  size="small"
+                  color={
+                    record.status === "Present"
+                      ? "success"
+                      : record.status === "Absent"
+                      ? "error"
+                      : record.status === "Half Day"
+                      ? "warning"
+                      : "info"
+                  }
+                  sx={{
+                    borderRadius: 5,
+                    fontWeight: 600,
+                  }}
+                />
+
+              </TableCell>
+
+              {/* Remarks */}
+
+              <TableCell>
                 {record.remarks || "--"}
+              </TableCell>
 
-              </td>
+              {/* Actions */}
 
-              <td className="px-6 py-5">
+              <TableCell align="center">
 
-                <div className="flex justify-center gap-3">
+                <Tooltip title="Edit Attendance">
 
-                  <button
-
+                  <IconButton
                     onClick={() => onEdit(record)}
-
-                    className="text-blue-600 hover:text-blue-800"
-
+                    sx={{
+                      bgcolor: "#EFF6FF",
+                      color: "#2563EB",
+                      mr: 1,
+                      "&:hover": {
+                        bgcolor: "#DBEAFE",
+                      },
+                    }}
                   >
+                    <Edit fontSize="small" />
+                  </IconButton>
 
-                    <FaEdit />
+                </Tooltip>
 
-                  </button>
+                <Tooltip title="Delete Attendance">
 
-                  <button
-
-                    onClick={() => handleDelete(record._id)}
-
-                    className="text-red-600 hover:text-red-800"
-
+                  <IconButton
+                    onClick={() =>
+                      handleDelete(record._id)
+                    }
+                    sx={{
+                      bgcolor: "#FEF2F2",
+                      color: "#EF4444",
+                      "&:hover": {
+                        bgcolor: "#FEE2E2",
+                      },
+                    }}
                   >
+                    <Delete fontSize="small" />
+                  </IconButton>
 
-                    <FaTrash />
+                </Tooltip>
 
-                  </button>
+              </TableCell>
 
-                </div>
-
-              </td>
-
-            </tr>
+            </TableRow>
 
           ))}
 
-        </tbody>
+        </TableBody>
 
-      </table>
+      </Table>
 
-    </div>
-
+    </Paper>
   );
-
 };
 
 export default AttendanceTable;

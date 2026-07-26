@@ -1,10 +1,29 @@
+/* eslint-disable react-hooks/set-state-in-effect */
+
 import {
-  FaEye,
-  FaEdit,
-  FaTrash,
-  FaCheck,
-  FaTimes,
-} from "react-icons/fa";
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  Paper,
+  Avatar,
+  Box,
+  Typography,
+  Chip,
+  IconButton,
+  Tooltip,
+  CircularProgress,
+  Stack,
+} from "@mui/material";
+
+import {
+  Edit,
+  Delete,
+  Visibility,
+  CheckCircle,
+  Cancel,
+} from "@mui/icons-material";
 
 import {
   approveLeave,
@@ -13,12 +32,11 @@ import {
 } from "../../services/leaveService";
 
 const LeaveTable = ({
-  leaves,
+  leaves = [],
   loading,
   refreshLeaves,
   onEdit,
 }) => {
-
   const handleApprove = async (id) => {
     try {
       await approveLeave(id);
@@ -38,216 +56,329 @@ const LeaveTable = ({
   };
 
   const handleDelete = async (id) => {
+    const confirmDelete = window.confirm(
+      "Delete this leave record?"
+    );
 
-    if (!window.confirm("Delete Leave?")) return;
+    if (!confirmDelete) return;
 
     try {
-
       await deleteLeave(id);
-
       refreshLeaves();
-
     } catch (err) {
-
       console.log(err);
-
     }
-
   };
 
   if (loading) {
     return (
-      <div className="p-10 text-center">
-        Loading...
-      </div>
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        py={8}
+        
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (leaves.length === 0) {
+    return (
+      <Typography align="center" sx={{ py: 8 }}>
+        No Leave Records Found
+      </Typography>
     );
   }
 
   return (
+    <Paper
+      elevation={0}
+      sx={{
+        borderRadius: 4,
+        overflow: "hidden",
+        border: "1px solid #E5E7EB",
+        
+      }}
+    >
+      <Table>
 
-    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <TableHead>
+          <TableRow
+            sx={{
+              bgcolor: "#F8FAFC",
+              mt:2,
+            }}
+          >
+            <TableCell sx={{ fontWeight: 700 }}>
+              Employee
+            </TableCell>
 
-      <div className="overflow-x-auto">
+            <TableCell sx={{ fontWeight: 700 }}>
+              Department
+            </TableCell>
 
-        <table className="w-full">
+            <TableCell sx={{ fontWeight: 700 }}>
+              Leave Type
+            </TableCell>
 
-          <thead className="bg-slate-50">
+            <TableCell sx={{ fontWeight: 700 }}>
+              From
+            </TableCell>
 
-            <tr className="text-left text-sm text-slate-600">
+            <TableCell sx={{ fontWeight: 700 }}>
+              To
+            </TableCell>
 
-              <th className="px-6 py-4">Employee</th>
-              <th className="px-6 py-4">Department</th>
-              <th className="px-6 py-4">Leave Type</th>
-              <th className="px-6 py-4">From</th>
-              <th className="px-6 py-4">To</th>
-              <th className="px-6 py-4">Days</th>
-              <th className="px-6 py-4">Status</th>
-              <th className="px-6 py-4 text-center">Approval</th>
-              <th className="px-6 py-4 text-right">Actions</th>
+            <TableCell sx={{ fontWeight: 700 }}>
+              Days
+            </TableCell>
 
-            </tr>
+            <TableCell sx={{ fontWeight: 700 }}>
+              Status
+            </TableCell>
 
-          </thead>
+            <TableCell
+              align="center"
+              sx={{ fontWeight: 700 }}
+            >
+              Approval
+            </TableCell>
 
-          <tbody>
+            <TableCell
+              align="center"
+              sx={{ fontWeight: 700 }}
+            >
+              Actions
+            </TableCell>
 
-            {leaves.length === 0 ? (
+          </TableRow>
+        </TableHead>
 
-              <tr>
+        <TableBody>
 
-                <td
-                  colSpan={9}
-                  className="text-center py-10 text-slate-500"
+          {leaves.map((leave) => (
+
+            <TableRow
+              key={leave._id}
+              hover
+              sx={{
+                transition: ".25s",
+                "&:hover": {
+                  bgcolor: "#F9FAFB",
+                },
+              }}
+            >
+
+              {/* Employee */}
+
+              <TableCell>
+
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  gap={2}
                 >
-                  No Leave Records Found
-                </td>
 
-              </tr>
+                  <Avatar
+                    sx={{
+                      bgcolor: "#2563EB",
+                      width: 44,
+                      height: 44,
+                      fontWeight: 700,
+                    }}
+                  >
+                    {leave.employee?.fullName?.charAt(0)}
+                  </Avatar>
 
-            ) : (
+                  <Typography fontWeight={600}>
+                    {leave.employee?.fullName}
+                  </Typography>
 
-              leaves.map((leave) => (
+                </Box>
 
-                <tr
-                  key={leave._id}
-                  className="border-t hover:bg-slate-50 transition"
+              </TableCell>
+
+              {/* Department */}
+
+              <TableCell>
+                {leave.employee?.department}
+              </TableCell>
+
+              {/* Leave Type */}
+
+              <TableCell>
+                {leave.leaveType}
+              </TableCell>
+
+              {/* From */}
+
+              <TableCell>
+                {new Date(
+                  leave.fromDate
+                ).toLocaleDateString()}
+              </TableCell>
+
+              {/* To */}
+
+              <TableCell>
+                {new Date(
+                  leave.toDate
+                ).toLocaleDateString()}
+              </TableCell>
+
+              {/* Days */}
+
+              <TableCell>
+                <Typography fontWeight={700}>
+                  {leave.totalDays}
+                </Typography>
+              </TableCell>
+
+              {/* Status */}
+
+              <TableCell>
+
+                <Chip
+                  label={leave.status}
+                  size="small"
+                  color={
+                    leave.status === "Approved"
+                      ? "success"
+                      : leave.status === "Rejected"
+                      ? "error"
+                      : "warning"
+                  }
+                  sx={{
+                    borderRadius: 5,
+                    fontWeight: 600,
+                  }}
+                />
+
+              </TableCell>
+
+              {/* Approval */}
+
+              <TableCell align="center">
+
+                <Stack
+                  direction="row"
+                  justifyContent="center"
+                  spacing={1}
                 >
 
-                  <td className="px-6 py-5">
+                  <Tooltip title="Approve">
 
-                    <div className="flex items-center gap-3">
-
-                      <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-semibold">
-
-                        {leave.employee?.fullName?.charAt(0)}
-
-                      </div>
-
-                      <span className="font-semibold">
-
-                        {leave.employee?.fullName}
-
-                      </span>
-
-                    </div>
-
-                  </td>
-
-                  <td className="px-6 py-5">
-                    {leave.employee?.department}
-                  </td>
-
-                  <td className="px-6 py-5">
-                    {leave.leaveType}
-                  </td>
-
-                  <td className="px-6 py-5">
-                    {new Date(
-                      leave.fromDate
-                    ).toLocaleDateString()}
-                  </td>
-
-                  <td className="px-6 py-5">
-                    {new Date(
-                      leave.toDate
-                    ).toLocaleDateString()}
-                  </td>
-
-                  <td className="px-6 py-5 font-semibold">
-                    {leave.totalDays}
-                  </td>
-
-                  <td className="px-6 py-5">
-
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                        leave.status === "Approved"
-                          ? "bg-green-100 text-green-700"
-                          : leave.status === "Rejected"
-                          ? "bg-red-100 text-red-700"
-                          : "bg-yellow-100 text-yellow-700"
-                      }`}
+                    <IconButton
+                      onClick={() =>
+                        handleApprove(leave._id)
+                      }
+                      sx={{
+                        bgcolor: "#ECFDF5",
+                        color: "#16A34A",
+                        "&:hover": {
+                          bgcolor: "#DCFCE7",
+                        },
+                      }}
                     >
+                      <CheckCircle fontSize="small" />
+                    </IconButton>
 
-                      {leave.status}
+                  </Tooltip>
 
-                    </span>
+                  <Tooltip title="Reject">
 
-                  </td>
+                    <IconButton
+                      onClick={() =>
+                        handleReject(leave._id)
+                      }
+                      sx={{
+                        bgcolor: "#FEF2F2",
+                        color: "#DC2626",
+                        "&:hover": {
+                          bgcolor: "#FEE2E2",
+                        },
+                      }}
+                    >
+                      <Cancel fontSize="small" />
+                    </IconButton>
 
-                  <td className="px-6 py-5">
+                  </Tooltip>
 
-                    <div className="flex justify-center gap-2">
+                </Stack>
 
-                      <button
-                        onClick={() =>
-                          handleApprove(leave._id)
-                        }
-                        className="p-2 rounded-lg bg-green-100 text-green-600 hover:bg-green-200"
-                      >
-                        <FaCheck />
-                      </button>
+              </TableCell>
 
-                      <button
-                        onClick={() =>
-                          handleReject(leave._id)
-                        }
-                        className="p-2 rounded-lg bg-red-100 text-red-600 hover:bg-red-200"
-                      >
-                        <FaTimes />
-                      </button>
+              {/* Actions */}
 
-                    </div>
+              <TableCell align="center">
 
-                  </td>
+                <Tooltip title="View">
 
-                  <td className="px-6 py-5">
+                  <IconButton
+                    onClick={() => onEdit(leave)}
+                    sx={{
+                      bgcolor: "#F3F4F6",
+                      mr: 1,
+                      "&:hover": {
+                        bgcolor: "#E5E7EB",
+                      },
+                    }}
+                  >
+                    <Visibility fontSize="small" />
+                  </IconButton>
 
-                    <div className="flex justify-end gap-2">
+                </Tooltip>
 
-                      <button
-                        onClick={() => onEdit(leave)}
-                        className="p-2 rounded-lg hover:bg-slate-100"
-                      >
-                        <FaEye />
-                      </button>
+                <Tooltip title="Edit">
 
-                      <button
-                        onClick={() => onEdit(leave)}
-                        className="p-2 rounded-lg hover:bg-blue-100 text-blue-600"
-                      >
-                        <FaEdit />
-                      </button>
+                  <IconButton
+                    onClick={() => onEdit(leave)}
+                    sx={{
+                      bgcolor: "#EFF6FF",
+                      color: "#2563EB",
+                      mr: 1,
+                      "&:hover": {
+                        bgcolor: "#DBEAFE",
+                      },
+                    }}
+                  >
+                    <Edit fontSize="small" />
+                  </IconButton>
 
-                      <button
-                        onClick={() =>
-                          handleDelete(leave._id)
-                        }
-                        className="p-2 rounded-lg hover:bg-red-100 text-red-600"
-                      >
-                        <FaTrash />
-                      </button>
+                </Tooltip>
 
-                    </div>
+                <Tooltip title="Delete">
 
-                  </td>
+                  <IconButton
+                    onClick={() =>
+                      handleDelete(leave._id)
+                    }
+                    sx={{
+                      bgcolor: "#FEF2F2",
+                      color: "#EF4444",
+                      "&:hover": {
+                        bgcolor: "#FEE2E2",
+                      },
+                    }}
+                  >
+                    <Delete fontSize="small" />
+                  </IconButton>
 
-                </tr>
+                </Tooltip>
 
-              ))
+              </TableCell>
 
-            )}
+            </TableRow>
 
-          </tbody>
+          ))}
 
-        </table>
+        </TableBody>
 
-      </div>
-
-    </div>
-
+      </Table>
+    </Paper>
   );
-
 };
 
 export default LeaveTable;

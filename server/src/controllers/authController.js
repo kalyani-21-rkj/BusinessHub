@@ -6,7 +6,7 @@ const registerUser = async (req, res) => {
     try {
         console.log("Body:", req.body);
 
-        const { fullName, email, password, role } = req.body;
+        const { fullName, email, password, role = "customer" } = req.body;
 
         console.log("Checking existing user...");
         const existingUser = await User.findOne({ email });

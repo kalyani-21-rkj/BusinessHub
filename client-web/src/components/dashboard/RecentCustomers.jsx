@@ -1,49 +1,157 @@
-import { FaUserCircle } from "react-icons/fa";
+import {
+  Avatar,
+  Box,
+  Card,
+  CardContent,
+  Chip,
+  Stack,
+  Typography,
+} from "@mui/material";
 
-const customers = [
-  { name: "Rahul Sharma", email: "rahul@gmail.com" },
-  { name: "Kalyani Ramayane", email: "kalyani@gmail.com" },
-  { name: "Sneha Patil", email: "sneha@gmail.com" },
-  { name: "Amit Joshi", email: "amit@gmail.com" },
-];
+import {
+  Email,
+  Phone,
+} from "@mui/icons-material";
 
-const RecentCustomers = () => {
+const RecentCustomers = ({ customers = [] }) => {
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 flex flex-col justify-between h-full">
-      {/* Header Container */}
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-lg font-bold text-slate-800 tracking-tight">
+    <Card
+      sx={{
+        borderRadius: 4,
+        boxShadow: "0 8px 25px rgba(0,0,0,.08)",
+      }}
+    >
+      <CardContent sx={{ p: 3 }}>
+        <Typography
+          variant="h6"
+          fontWeight={700}
+          mb={3}
+        >
           Recent Customers
-        </h2>
-        <button className="text-sm text-blue-600 font-semibold hover:text-blue-700 transition-colors">
-          View All
-        </button>
-      </div>
+        </Typography>
 
-      {/* Main List Layout */}
-      <div className="divide-y divide-slate-50">
-        {customers.map((customer, index) => (
-          <div
-            key={index}
-            className="flex items-center gap-4 py-3 first:pt-0 last:pb-0 group"
-          >
-            {/* Styled Profile Container */}
-            <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 group-hover:bg-blue-100 transition-colors">
-              <FaUserCircle className="text-2xl" />
-            </div>
+        <Stack spacing={2}>
+          {customers.length === 0 ? (
+            <Typography
+              align="center"
+              color="text.secondary"
+              py={4}
+            >
+              No Customers Found
+            </Typography>
+          ) : (
+            customers.map((customer) => (
+              <Box
+                key={customer._id}
+                sx={{
+                  border: "1px solid #E5E7EB",
+                  borderRadius: 3,
+                  p: 2,
+                  transition: ".3s",
+                  "&:hover": {
+                    boxShadow:
+                      "0 8px 20px rgba(37,99,235,.12)",
+                    transform: "translateY(-2px)",
+                  },
+                }}
+              >
+                {/* Top Row */}
+                <Box
+                  display="flex"
+                  justifyContent="space-between"
+                  alignItems="center"
+                >
+                  <Box
+                    display="flex"
+                    alignItems="center"
+                    gap={2}
+                  >
+                    <Avatar
+                      sx={{
+                        width: 46,
+                        height: 46,
+                        fontWeight: 700,
+                        background:
+                          "linear-gradient(135deg,#2563EB,#1D4ED8)",
+                      }}
+                    >
+                      {(customer.fullName || customer.name || "U")[0]}
+                    </Avatar>
 
-            <div className="flex-1 min-w-0">
-              <h3 className="text-sm font-semibold text-slate-800 truncate">
-                {customer.name}
-              </h3>
-              <p className="text-xs text-slate-400 truncate mt-0.5">
-                {customer.email}
-              </p>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
+                    <Typography
+                      fontWeight={700}
+                      fontSize={17}
+                    >
+                      {customer.fullName || customer.name}
+                    </Typography>
+                  </Box>
+
+                  <Chip
+                    label={customer.status || "Active"}
+                    size="small"
+                    color={
+                      customer.status === "New"
+                        ? "warning"
+                        : "success"
+                    }
+                  />
+                </Box>
+
+                {/* Email */}
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                    mt: 2,
+                  }}
+                >
+                  <Email
+                    sx={{
+                      color: "#64748B",
+                      fontSize: 18,
+                      flexShrink: 0,
+                    }}
+                  />
+
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                  >
+                    {customer.email}
+                  </Typography>
+                </Box>
+
+                {/* Phone */}
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                    mt: 1,
+                  }}
+                >
+                  <Phone
+                    sx={{
+                      color: "#64748B",
+                      fontSize: 18,
+                      flexShrink: 0,
+                    }}
+                  />
+
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                  >
+                    {customer.phone || "N/A"}
+                  </Typography>
+                </Box>
+              </Box>
+            ))
+          )}
+        </Stack>
+      </CardContent>
+    </Card>
   );
 };
 

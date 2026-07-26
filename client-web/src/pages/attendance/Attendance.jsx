@@ -2,10 +2,15 @@
 
 import { useEffect, useState } from "react";
 
+import {
+  Box,
+  Typography,
+} from "@mui/material";
+
 import AttendanceTable from "../../components/attendance/AttendanceTable";
 import AttendanceStats from "../../components/attendance/AttendanceStats";
-import AttendanceModal from "../../components/attendance/AttendanceModal";
 import AttendanceFilters from "../../components/attendance/AttendanceFilters";
+import AttendanceModal from "../../components/attendance/AttendanceModal";
 
 import { getAttendance } from "../../services/attendanceService";
 
@@ -29,42 +34,44 @@ const Attendance = () => {
 
       let records = res.data.attendance || [];
 
-      // Department Filter
       if (department) {
         records = records.filter(
           (item) => item.employee?.department === department
         );
       }
 
-      // Status Filter
       if (status) {
         records = records.filter(
           (item) => item.status === status
         );
       }
 
-      // Date Filter
       if (date) {
         records = records.filter(
           (item) =>
-            new Date(item.date).toISOString().split("T")[0] === date
+            new Date(item.date)
+              .toISOString()
+              .split("T")[0] === date
         );
       }
 
       setAttendance(records);
+
     } catch (err) {
+
       console.error(err);
+
     } finally {
+
       setLoading(false);
+
     }
   };
 
-  // Initial Load
   useEffect(() => {
     fetchAttendance();
   }, []);
 
-  // Search
   useEffect(() => {
     const timer = setTimeout(() => {
       fetchAttendance(keyword);
@@ -73,26 +80,30 @@ const Attendance = () => {
     return () => clearTimeout(timer);
   }, [keyword]);
 
-  // Refresh Filters
   useEffect(() => {
     fetchAttendance(keyword);
   }, [status, department, date]);
 
   return (
-    <div className="flex flex-col gap-8 p-6 w-full">
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4"></div>
+    <Box sx={{ p: 3 }}>
+
+      {/* Page Header */}
+
+      
 
       {/* Statistics */}
-      <AttendanceStats />
 
-      {/* Filters */}
+      <AttendanceStats attendance={attendance} />
+
+      {/* Search + Filters */}
+
       <AttendanceFilters
         keyword={keyword}
         setKeyword={setKeyword}
-        status={status}
-        setStatus={setStatus}
         department={department}
         setDepartment={setDepartment}
+        status={status}
+        setStatus={setStatus}
         date={date}
         setDate={setDate}
         onMarkAttendance={() => {
@@ -101,33 +112,35 @@ const Attendance = () => {
         }}
       />
 
-      {/* Table */}
-      <div className="bg-white rounded-xl shadow border overflow-hidden">
+      {/* Attendance Table */}
 
-        <AttendanceTable
-          attendance={attendance}
-          loading={loading}
-          refreshAttendance={() => fetchAttendance(keyword)}
-          onEdit={(record) => {
-            setSelectedAttendance(record);
-            setOpenModal(true);
-          }}
-        />
-
-      </div>
+      <AttendanceTable
+        attendance={attendance}
+        loading={loading}
+        refreshAttendance={() =>
+          fetchAttendance(keyword)
+        }
+        onEdit={(record) => {
+          setSelectedAttendance(record);
+          setOpenModal(true);
+        }}
+      />
 
       {/* Modal */}
+
       <AttendanceModal
         open={openModal}
+        attendance={selectedAttendance}
         onClose={() => {
           setOpenModal(false);
           setSelectedAttendance(null);
         }}
-        attendance={selectedAttendance}
-        onSuccess={() => fetchAttendance(keyword)}
+        onSuccess={() =>
+          fetchAttendance(keyword)
+        }
       />
 
-    </div>
+    </Box>
   );
 };
 

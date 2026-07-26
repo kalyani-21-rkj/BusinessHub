@@ -1,5 +1,31 @@
 /* eslint-disable react-hooks/set-state-in-effect */
+
 import { useState, useEffect } from "react";
+
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Grid,
+  TextField,
+  Button,
+  MenuItem,
+  InputAdornment,
+  Typography,
+  Divider,
+} from "@mui/material";
+
+import {
+  Person,
+  Email,
+  Phone,
+  Business,
+  Work,
+  CurrencyRupee,
+  CalendarMonth,
+} from "@mui/icons-material";
+
 import {
   addEmployee,
   updateEmployee,
@@ -11,6 +37,7 @@ const EmployeeModal = ({
   onClose,
   onSuccess,
 }) => {
+
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -25,7 +52,9 @@ const EmployeeModal = ({
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+
     if (employee) {
+
       setFormData({
         fullName: employee.fullName || "",
         email: employee.email || "",
@@ -38,7 +67,9 @@ const EmployeeModal = ({
           : "",
         status: employee.status || "Active",
       });
+
     } else {
+
       setFormData({
         fullName: "",
         email: "",
@@ -49,170 +80,335 @@ const EmployeeModal = ({
         joiningDate: "",
         status: "Active",
       });
-    }
-  }, [employee, open]);
 
-  if (!open) return null;
+    }
+
+  }, [employee, open]);
+    if (!open) return null;
 
   const handleChange = (e) => {
+
     setFormData((prev) => ({
       ...prev,
       [e.target.name]: e.target.value,
     }));
+
   };
 
   const handleSubmit = async (e) => {
+
     e.preventDefault();
 
     try {
+
       setLoading(true);
 
       if (employee) {
-        await updateEmployee(employee._id, formData);
+
+        await updateEmployee(
+          employee._id,
+          formData
+        );
+
         alert("Employee Updated Successfully");
+
       } else {
+
         await addEmployee(formData);
+
         alert("Employee Added Successfully");
+
       }
 
       onSuccess();
 
       onClose();
-    }  catch (err) {
 
-  console.log(err);
+    } catch (err) {
 
-  console.log(err.response);
+      console.log(err);
 
-  console.log(err.response?.data);
+      console.log(err.response);
 
-  alert(err.response?.data?.message || "Unable to Add Employee");
+      console.log(err.response?.data);
 
-} finally {
+      alert(
+        err.response?.data?.message ||
+        "Unable to Add Employee"
+      );
 
-  setLoading(false);
+    } finally {
 
-}
-  }
+      setLoading(false);
 
+    }
+
+  };
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
 
-      <div className="bg-white rounded-2xl w-full max-w-2xl p-8">
+  <Dialog
+    open={open}
+    onClose={onClose}
+    maxWidth="md"
+    fullWidth
+    PaperProps={{
+      sx: {
+        borderRadius: 4,
+        overflow: "hidden",
+      },
+    }}
+  >
 
-        <h2 className="text-2xl font-bold mb-6">
-          {employee ? "Edit Employee" : "Add Employee"}
-        </h2>
+    {/* Header */}
 
-        <form
-          onSubmit={handleSubmit}
-          className="grid grid-cols-2 gap-5"
-        >
+    <DialogTitle
+      sx={{
+        bgcolor: "#2563EB",
+        color: "#fff",
+        py: 2.5,
+        mb:2,
+      }}
+    >
+      <Typography
+        variant="h5"
+        fontWeight={700}
+      >
+        {employee ? "Edit Employee" : "Add Employee"}
+      </Typography>
 
-          <input
+      <Typography
+        variant="body2"
+        sx={{ opacity: .9 }}
+      >
+        Fill all employee details
+      </Typography>
+    </DialogTitle>
+
+    <DialogContent sx={{ pt: 4 }}>
+
+      <Grid container spacing={3} mt={15}>
+
+        {/* Full Name */}
+
+        <Grid item xs={12} md={6}>
+          <TextField
+            fullWidth
+            required
+            label="Full Name"
             name="fullName"
-            placeholder="Full Name"
             value={formData.fullName}
             onChange={handleChange}
-            className="border rounded-lg p-3"
-            required
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Person color="primary" />
+                </InputAdornment>
+              ),
+            }}
           />
+        </Grid>
 
-          <input
-            name="email"
+        {/* Email */}
+
+        <Grid item xs={12} md={6}>
+          <TextField
+            fullWidth
+            required
             type="email"
-            placeholder="Email"
+            label="Email"
+            name="email"
             value={formData.email}
             onChange={handleChange}
-            className="border rounded-lg p-3"
-            required
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Email color="primary" />
+                </InputAdornment>
+              ),
+            }}
           />
+        </Grid>
 
-          <input
+        {/* Phone */}
+
+        <Grid item xs={12} md={6}>
+          <TextField
+            fullWidth
+            required
+            label="Phone Number"
             name="phone"
-            placeholder="Phone"
             value={formData.phone}
             onChange={handleChange}
-            className="border rounded-lg p-3"
-            required
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Phone color="primary" />
+                </InputAdornment>
+              ),
+            }}
           />
+        </Grid>
 
-          <input
+        {/* Department */}
+
+        <Grid item xs={12} md={6}>
+          <TextField
+            fullWidth
+            required
+            label="Department"
             name="department"
-            placeholder="Department"
             value={formData.department}
             onChange={handleChange}
-            className="border rounded-lg p-3"
-            required
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Business color="primary" />
+                </InputAdornment>
+              ),
+            }}
           />
+        </Grid>
 
-          <input
+        {/* Designation */}
+
+        <Grid item xs={12} md={6}>
+          <TextField
+            fullWidth
+            required
+            label="Designation"
             name="designation"
-            placeholder="Designation"
             value={formData.designation}
             onChange={handleChange}
-            className="border rounded-lg p-3"
-            required
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Work color="primary" />
+                </InputAdornment>
+              ),
+            }}
           />
+        </Grid>
 
-          <input
-            name="salary"
+        {/* Salary */}
+
+        <Grid item xs={12} md={6}>
+          <TextField
+            fullWidth
+            required
             type="number"
-            placeholder="Salary"
+            label="Salary"
+            name="salary"
             value={formData.salary}
             onChange={handleChange}
-            className="border rounded-lg p-3"
-            required
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <CurrencyRupee color="primary" />
+                </InputAdornment>
+              ),
+            }}
           />
+        </Grid>
 
-          <input
-            name="joiningDate"
+        {/* Joining Date */}
+
+        <Grid item xs={12} md={6}>
+          <TextField
+            fullWidth
             type="date"
+            //label="Joining Date"
+            name="joiningDate"
             value={formData.joiningDate}
             onChange={handleChange}
-            className="border rounded-lg p-3"
+            InputLabelProps={{
+              shrink: true,
+            }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <CalendarMonth color="primary" />
+                </InputAdornment>
+              ),
+            }}
           />
+        </Grid>
 
-          <select
+        {/* Status */}
+
+        <Grid item xs={12} md={6}>
+          <TextField
+            select
+            fullWidth
+            label="Status"
             name="status"
             value={formData.status}
             onChange={handleChange}
-            className="border rounded-lg p-3"
           >
-            <option value="Active">Active</option>
-            <option value="Inactive">Inactive</option>
-          </select>
+            <MenuItem value="Active">Active</MenuItem>
+            <MenuItem value="Inactive">Inactive</MenuItem>
+          </TextField>
+        </Grid>
 
-          <div className="col-span-2 flex justify-end gap-4 mt-4">
+      </Grid>
 
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-6 py-3 rounded-lg border"
-            >
-              Cancel
-            </button>
+      <Divider sx={{ mt: 4 }} />
+            <DialogActions
+        sx={{
+          px: 4,
+          py: 3,
+          display: "flex",
+          justifyContent: "flex-end",
+          gap: 2,
+        }}
+      >
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="px-6 py-3 rounded-lg bg-blue-600 text-white"
-            >
-              {loading
-                ? "Saving..."
-                : employee
-                ? "Update Employee"
-                : "Save Employee"}
-            </button>
+        <Button
+          onClick={onClose}
+          variant="outlined"
+          sx={{
+            textTransform: "none",
+            borderRadius: 2,
+            px: 4,
+            py: 1.2,
+            fontWeight: 600,
+          }}
+        >
+          Cancel
+        </Button>
 
-          </div>
+        <Button
+          type="submit"
+          variant="contained"
+          onClick={handleSubmit}
+          disabled={loading}
+          sx={{
+            bgcolor: "#2563EB",
+            textTransform: "none",
+            borderRadius: 2,
+            px: 4,
+            py: 1.2,
+            fontWeight: 700,
+            boxShadow: "0 8px 20px rgba(37,99,235,.20)",
 
-        </form>
+            "&:hover": {
+              bgcolor: "#1D4ED8",
+            },
+          }}
+        >
+          {loading
+            ? "Saving..."
+            : employee
+            ? "Update Employee"
+            : "Save Employee"}
+        </Button>
 
-      </div>
+      </DialogActions>
+    </DialogContent>
 
-    </div>
-  );
-};
+    </Dialog>
+
+  )};
+
+
 
 export default EmployeeModal;

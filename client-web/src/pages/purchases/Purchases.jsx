@@ -5,6 +5,7 @@ import PurchaseDashboard from "../../components/purchases/PurchaseDashboard";
 import PurchaseOrderTable from "../../components/purchases/PurchaseOrderTable";
 import PurchaseDetailsModal from "../../components/purchases/PurchaseDetailsModal";
 import CreatePurchaseModal from "../../components/purchases/CreatePurchaseModal";
+import PurchaseFilters from "../../components/purchases/PurchaseFilters";
 
 import {
   getPurchases,
@@ -122,75 +123,20 @@ const handleDeletePurchase = async (id) => {
 
       <PurchaseDashboard />
 
-      <div className="bg-none rounded-2xl  border-slate-200 p-5">
-
-        <div className="flex flex-wrap items-center gap-4">
-
-          <div className="flex-1 min-w-[320px]">
-
-            <input
-              type="text"
-              placeholder="Search Purchase Order..."
-              value={keyword}
-              onChange={(e) =>
-                setKeyword(e.target.value)
-              }
-              className="bg-white w-full h-7 rounded-xl px-4  focus:ring-2 focus:ring-blue-500"
-            />
-
-          </div>
-
-          <select
-            value={supplier}
-            onChange={(e) =>
-              setSupplier(e.target.value)
-            }
-            className="bg-white h-7 min-w-[180px] rounded-xl border border-slate-300 px-4"
-          >
-            <option value="">All Suppliers</option>
-            <option>Apple India</option>
-            <option>Dell India</option>
-            <option>Samsung</option>
-          </select>
-
-          <select
-            value={warehouse}
-            onChange={(e) =>
-              setWarehouse(e.target.value)
-            }
-            className="bg-white h-7 min-w-[180px] rounded-xl border border-slate-300 px-4"
-          >
-            <option value="">All Warehouses</option>
-            <option>Mumbai</option>
-            <option>Pune</option>
-            <option>Delhi</option>
-          </select>
-
-          <select
-            value={status}
-            onChange={(e) =>
-              setStatus(e.target.value)
-            }
-            className="bg-white h-7 min-w-[160px] rounded-xl border border-slate-300 px-4"
-          >
-            <option value="">All Status</option>
-            <option>Receiving</option>
-            <option>Pending</option>
-            <option>Completed</option>
-          </select>
-
-          <button
-            onClick={() =>
-              setOpenCreateModal(true)
-            }
-            className="h-7 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold whitespace-nowrap"
-          >
-            + Create Purchase Order
-          </button>
-
-        </div>
-
-      </div>
+      <PurchaseFilters
+    keyword={keyword}
+    setKeyword={setKeyword}
+    supplier={supplier}
+    setSupplier={setSupplier}
+    warehouse={warehouse}
+    setWarehouse={setWarehouse}
+    status={status}
+    setStatus={setStatus}
+    onCreatePurchase={() => {
+        setSelectedPurchase(null);
+        setOpenCreateModal(true);
+    }}
+/>
 
       <PurchaseOrderTable
         purchases={purchases}

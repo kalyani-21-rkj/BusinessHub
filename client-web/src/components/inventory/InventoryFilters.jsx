@@ -1,5 +1,15 @@
-import { Search } from "lucide-react";
-import { FaPlus } from "react-icons/fa";
+import {
+  Paper,
+  TextField,
+  Button,
+  MenuItem,
+  InputAdornment,
+} from "@mui/material";
+
+import {
+  Search,
+  Add,
+} from "@mui/icons-material";
 
 const InventoryFilters = ({
   keyword,
@@ -9,67 +19,92 @@ const InventoryFilters = ({
   onAddStock,
 }) => {
   return (
-    <div className="bg-none rounded-2xl border border-slate-200 shadow-none p-5">
+    <Paper
+  elevation={0}
+  sx={{
+    p: 2,
+    mb: 1,
+    mt: 1,
+    borderRadius: 4,
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    flexWrap: "wrap",
+    gap: 2,
+    boxShadow: "0 8px 24px rgba(37,99,235,.06)",
+  }}
+>
+  {/* Left Side */}
 
-      <div className="flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
+  <div
+    style={{
+      display: "flex",
+      gap: "16px",
+      flexWrap: "wrap",
+      alignItems: "center",
+    }}
+  >
+    {/* Search */}
 
-        {/* Left Side */}
-        <div className="flex flex-col md:flex-row gap-4 flex-1">
+    <TextField
+      placeholder="Search product..."
+      size="small"
+      value={keyword}
+      onChange={(e) => setKeyword(e.target.value)}
+      sx={{
+        width: {
+          xs: "100%",
+          sm: 280,
+        },
+      }}
+      InputProps={{
+        startAdornment: (
+          <InputAdornment position="start">
+            <Search />
+          </InputAdornment>
+        ),
+      }}
+    />
 
-          {/* Search */}
-          <div className="relative flex-1">
+    {/* Category */}
 
-            <Search
-              className="absolute left-70 top-1/2 -translate-y-1/2 text-slate-400"
-              size={18}
-            />
+    <TextField
+      select
+      size="small"
+      label="Category"
+      value={category}
+      onChange={(e) => setCategory(e.target.value)}
+      sx={{ width: 180 }}
+    >
+      <MenuItem value="">All Categories</MenuItem>
+      <MenuItem value="Laptop">Laptop</MenuItem>
+      <MenuItem value="Mobile">Mobile</MenuItem>
+      <MenuItem value="Tablet">Tablet</MenuItem>
+      <MenuItem value="Accessories">Accessories</MenuItem>
+    </TextField>
+  </div>
 
-            <input
-              type="text"
-              placeholder="Search products..."
-              value={keyword}
-              onChange={(e) => setKeyword(e.target.value)}
-              className="w-full sm:w-80 h-8 pl-4 pr-4 rounded-xl border border-slate-200 bg-white placeholder-slate-400 text-slate-700 outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all shadow-sm"
-            />
+  {/* Right Side */}
 
-          </div>
-
-          {/* Category */}
-          <select
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            className="bg-white px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none"
-          >
-            <option value="">All Categories</option>
-            <option value="Laptop">Laptop</option>
-            <option value="Mobile">Mobile</option>
-            <option value="Tablet">Tablet</option>
-            <option value="Accessories">Accessories</option>
-          </select>
-
-          {/* Warehouse (Demo) */}
-          <select
-            className="bg-white px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none"
-          >
-            <option>All Warehouses</option>
-            <option>Main Warehouse</option>
-          </select>
-
-        </div>
-
-        {/* Right Side */}
-
-        <button
-          onClick={onAddStock}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl flex items-center gap-2 transition"
-        >
-          <FaPlus />
-          Add Stock
-        </button>
-
-      </div>
-
-    </div>
+  <Button
+    variant="contained"
+    startIcon={<Add />}
+    onClick={onAddStock}
+    sx={{
+      bgcolor: "#2563EB",
+      borderRadius: 3,
+      px: 3,
+      py: 1.2,
+      textTransform: "none",
+      fontWeight: 600,
+      "&:hover": {
+        bgcolor: "#1D4ED8",
+      },
+    }}
+  >
+    Add Stock
+  </Button>
+</Paper>
   );
 };
 

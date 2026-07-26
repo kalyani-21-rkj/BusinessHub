@@ -1,104 +1,134 @@
-import { FaSearch, FaPlus } from "react-icons/fa";
+import {
+  Paper,
+  TextField,
+  Button,
+  MenuItem,
+  InputAdornment,
+} from "@mui/material";
+
+import {
+  Search,
+  Add,
+} from "@mui/icons-material";
 
 const AttendanceFilters = ({
   keyword,
   setKeyword,
-  status,
-  setStatus,
   department,
   setDepartment,
+  status,
+  setStatus,
   date,
   setDate,
   onMarkAttendance,
 }) => {
   return (
-    <div className=" rounded-xl p-5 ">
+    <Paper
+      elevation={0}
+      sx={{
+        p: 2,
+        mb: 4,
+        mt:3,
+        borderRadius: 4,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        flexWrap: "wrap",
+        gap: 2,
+        boxShadow: "0 8px 24px rgba(37,99,235,.06)",
+      }}
+    >
+      {/* Search */}
 
-      <div className="flex flex-wrap gap-4 items-center">
+      <TextField
+        placeholder="Search employee..."
+        size="small"
+        value={keyword}
+        onChange={(e) => setKeyword(e.target.value)}
+        sx={{
+          width: {
+            xs: "100%",
+            sm: 280,
+          },
+        }}
+        InputProps={{
+          startAdornment: (
+            <InputAdornment position="start">
+              <Search />
+            </InputAdornment>
+          ),
+        }}
+      />
 
-        {/* Search */}
+      {/* Department */}
 
-        <div className="relative">
+      <TextField
+        select
+        size="small"
+        label="Department"
+        value={department}
+        onChange={(e) => setDepartment(e.target.value)}
+        sx={{ minWidth: 170 }}
+      >
+        <MenuItem value="">All Departments</MenuItem>
+        <MenuItem value="HR">HR</MenuItem>
+        <MenuItem value="Sales">Sales</MenuItem>
+        <MenuItem value="Finance">Finance</MenuItem>
+        <MenuItem value="Inventory">Inventory</MenuItem>
+        <MenuItem value="IT">IT</MenuItem>
+      </TextField>
 
-          <FaSearch className="absolute left-65 top-1/2 -translate-y-1/2 text-slate-400" />
+      {/* Status */}
 
-          <input
-            type="text"
-            placeholder="Search Employee..."
-            value={keyword}
-            onChange={(e) => setKeyword(e.target.value)}
-            className=" bg-white w-72 h-7 pl-10 pr-4 py-2 rounded-xl border border-slate-300"
-          />
+      <TextField
+        select
+        size="small"
+        label="Status"
+        value={status}
+        onChange={(e) => setStatus(e.target.value)}
+        sx={{ minWidth: 170 }}
+      >
+        <MenuItem value="">All Status</MenuItem>
+        <MenuItem value="Present">Present</MenuItem>
+        <MenuItem value="Absent">Absent</MenuItem>
+        <MenuItem value="Half Day">Half Day</MenuItem>
+        <MenuItem value="Leave">Leave</MenuItem>
+      </TextField>
 
-        </div>
+      {/* Date */}
 
-        {/* Department */}
+      <TextField
+        size="small"
+        type="date"
+        value={date}
+        onChange={(e) => setDate(e.target.value)}
+        sx={{ minWidth: 170 }}
+        InputLabelProps={{
+          shrink: true,
+        }}
+      />
 
-        <select
-          value={department}
-          onChange={(e) => setDepartment(e.target.value)}
-          className=" bg-white h-7 px-4 py-2 rounded-xl border border-slate-300"
-        >
+      {/* Button */}
 
-          <option value="">All Departments</option>
-
-          <option value="HR">HR</option>
-
-          <option value="Sales">Sales</option>
-
-          <option value="Inventory">Inventory</option>
-
-          <option value="Finance">Finance</option>
-
-          <option value="IT">IT</option>
-
-        </select>
-
-        {/* Date */}
-
-        <input
-          type="date"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-          className=" bg-white h-7 px-4 py-2 rounded-xl border border-slate-300"
-        />
-
-        {/* Status */}
-
-        <select
-          value={status}
-          onChange={(e) => setStatus(e.target.value)}
-          className=" bg-white px-4 py-2 h-7  rounded-xl border border-slate-300"
-        >
-
-          <option value="">All Status</option>
-
-          <option value="Present">Present</option>
-
-          <option value="Absent">Absent</option>
-
-          <option value="Half Day">Half Day</option>
-
-          <option value="Leave">Leave</option>
-
-        </select>
-
-        {/* Button */}
-
-        <button
-          onClick={onMarkAttendance}
-          className="ml-auto flex items-center h-7 gap-2 bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl"
-        >
-
-          <FaPlus />
-
-          Mark Attendance
-
-        </button>
-
-      </div>
-
-    </div>
+      <Button
+        variant="contained"
+        startIcon={<Add />}
+        onClick={onMarkAttendance}
+        sx={{
+          bgcolor: "#2563EB",
+          borderRadius: 3,
+          px: 3,
+          py: 1.2,
+          textTransform: "none",
+          fontWeight: 600,
+          "&:hover": {
+            bgcolor: "#1D4ED8",
+          },
+        }}
+      >
+        Mark Attendance
+      </Button>
+    </Paper>
   );
 };
 

@@ -1,16 +1,41 @@
 import {
-  FaTimes,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Typography,
+  Grid,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Button,
+  Divider,
+  Chip,
+  Box,
+  Stack,
+} from "@mui/material";
+
+import {
   FaPrint,
   FaTruck,
   FaCheckCircle,
 } from "react-icons/fa";
 
-const PurchaseDetailsModal = ({ purchase, onClose }) => {
+const PurchaseDetailsModal = ({
+  purchase,
+  onClose,
+}) => {
   if (!purchase) return null;
 
   const subtotal =
     purchase.products?.reduce(
-      (sum, item) => sum + item.purchasePrice * item.quantity,
+      (sum, item) =>
+        sum +
+        item.purchasePrice * item.quantity,
       0
     ) || 0;
 
@@ -26,256 +51,576 @@ const PurchaseDetailsModal = ({ purchase, onClose }) => {
     ) || 0;
 
   return (
-    <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-6">
+    <Dialog
+      open={Boolean(purchase)}
+      onClose={onClose}
+      maxWidth="lg"
+      fullWidth
+      scroll="paper"
+      PaperProps={{
+        sx: {
+          borderRadius: 4,
+        },
+      }}
+    >
+      <DialogTitle
+        sx={{
+          bgcolor: "#2563EB",
+          color: "#fff",
+          pb: 2,
+        }}
+      >
+        <Typography
+          variant="h5"
+          fontWeight={700}
+        >
+          Purchase Order
+          #{purchase._id?.slice(-6)}
+        </Typography>
 
-      <div className="bg-white rounded-2xl w-full max-w-5xl shadow-2xl overflow-hidden">
+        <Typography
+          variant="body2"
+          sx={{
+            opacity: .9,
+            mt: .5,
+          }}
+        >
+          View complete purchase order
+          information
+        </Typography>
+      </DialogTitle>
 
-        {/* Header */}
-        <div className="flex justify-between items-center px-8 py-5 border-b">
+      <DialogContent sx={{ mt: 3 }}>
 
-          <div>
-            <h2 className="text-2xl font-bold">
-              Purchase #{purchase._id?.slice(-6)}
-            </h2>
+        <Grid container spacing={3}>
 
-            <p className="text-slate-500">
-              Purchase Order Details
-            </p>
-          </div>
+          {/* Supplier Card */}
 
-          <button
-            onClick={onClose}
-            className="p-3 rounded-lg hover:bg-slate-100"
-          >
-            <FaTimes />
-          </button>
+          <Grid item xs={12} md={6}>
 
-        </div>
+            <Paper
+              elevation={0}
+              sx={{
+                p:3,
+                borderRadius:3,
+                border:"1px solid #E2E8F0",
+                height:"100%",
+              }}
+            >
 
-        {/* Body */}
-
-        <div className="grid lg:grid-cols-2 gap-8 p-8">
-
-          {/* LEFT */}
-
-          <div className="space-y-6">
-
-            <div>
-
-              <h3 className="font-semibold mb-3">
+              <Typography
+                variant="h6"
+                fontWeight={700}
+                mb={2}
+              >
                 Supplier Information
-              </h3>
+              </Typography>
 
-              <div className="bg-slate-50 rounded-xl p-5 space-y-2">
+              <Stack spacing={2}>
 
-                <p className="font-semibold">
-                  {purchase.supplier}
-                </p>
+                <Box>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                  >
+                    Supplier
+                  </Typography>
 
-                <p>
-                  Warehouse : {purchase.warehouse}
-                </p>
+                  <Typography fontWeight={600}>
+                    {purchase.supplier}
+                  </Typography>
+                </Box>
 
-                <p>
-                  Status : {purchase.status}
-                </p>
+                <Box>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                  >
+                    Warehouse
+                  </Typography>
 
-                <p>
-                  Expected :
-                  {" "}
-                  {purchase.expectedDate
-                    ? new Date(
-                        purchase.expectedDate
-                      ).toLocaleDateString()
-                    : "-"}
-                </p>
+                  <Typography>
+                    {purchase.warehouse}
+                  </Typography>
+                </Box>
 
-              </div>
+                <Box>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                  >
+                    Expected Date
+                  </Typography>
 
-            </div>
+                  <Typography>
+                    {purchase.expectedDate
+                      ? new Date(
+                          purchase.expectedDate
+                        ).toLocaleDateString()
+                      : "-"}
+                  </Typography>
+                </Box>
 
-            <div>
+                <Box>
+                  <Typography
+                    variant="caption"
+                    color="text.secondary"
+                  >
+                    Status
+                  </Typography>
 
-              <h3 className="font-semibold mb-3">
-                Notes
-              </h3>
+                  <br />
 
-              <div className="bg-slate-50 rounded-xl p-5">
+                  <Chip
+                    label={purchase.status}
+                    color={
+                      purchase.status ===
+                      "Received"
+                        ? "success"
+                        : purchase.status ===
+                          "Ordered"
+                        ? "primary"
+                        : "warning"
+                    }
+                    size="small"
+                  />
+                </Box>
 
-                {purchase.notes || "No Notes"}
+              </Stack>
 
-              </div>
+            </Paper>
 
-            </div>
+          </Grid>
+                    {/* Amount Summary */}
 
-          </div>
+          <Grid item xs={12} md={6}>
 
-          {/* RIGHT */}
+            <Paper
+              elevation={0}
+              sx={{
+                p: 3,
+                borderRadius: 3,
+                border: "1px solid #E2E8F0",
+                height: "100%",
+              }}
+            >
 
-          <div className="space-y-6">
+              <Typography
+                variant="h6"
+                fontWeight={700}
+                mb={2}
+              >
+                Amount Summary
+              </Typography>
 
-            <div>
+              <Stack spacing={2}>
 
-              <h3 className="font-semibold mb-3">
-                Products
-              </h3>
+                <Box
+                  display="flex"
+                  justifyContent="space-between"
+                >
+                  <Typography color="text.secondary">
+                    Subtotal
+                  </Typography>
 
-              <div className="border rounded-xl divide-y">
+                  <Typography fontWeight={600}>
+                    ₹
+                    {subtotal.toLocaleString("en-IN")}
+                  </Typography>
+                </Box>
+
+                <Box
+                  display="flex"
+                  justifyContent="space-between"
+                >
+                  <Typography color="text.secondary">
+                    GST
+                  </Typography>
+
+                  <Typography fontWeight={600}>
+                    ₹
+                    {gstAmount.toLocaleString("en-IN")}
+                  </Typography>
+                </Box>
+
+                <Divider />
+
+                <Box
+                  display="flex"
+                  justifyContent="space-between"
+                >
+                  <Typography
+                    variant="h6"
+                    fontWeight={700}
+                  >
+                    Total
+                  </Typography>
+
+                  <Typography
+                    variant="h6"
+                    fontWeight={700}
+                    color="#2563EB"
+                  >
+                    ₹
+                    {Number(
+                      purchase.totalAmount || 0
+                    ).toLocaleString("en-IN")}
+                  </Typography>
+                </Box>
+
+              </Stack>
+
+            </Paper>
+
+          </Grid>
+      </Grid>
+        
+
+        {/* Products */}
+
+        <Paper
+          elevation={0}
+          sx={{
+            mt: 4,
+            borderRadius: 3,
+            border: "1px solid #E2E8F0",
+            overflow: "hidden",
+          }}
+        >
+
+          <Box p={3} pb={1}>
+
+            <Typography
+              variant="h6"
+              fontWeight={700}
+            >
+              Products
+            </Typography>
+
+          </Box>
+
+          <TableContainer>
+
+            <Table
+              size="small"
+              sx={{
+                minWidth: 700,
+              }}
+            >
+
+              <TableHead>
+
+                <TableRow>
+
+                  <TableCell>
+                    <strong>Product</strong>
+                  </TableCell>
+
+                  <TableCell align="center">
+                    <strong>Qty</strong>
+                  </TableCell>
+
+                  <TableCell align="right">
+                    <strong>Price</strong>
+                  </TableCell>
+
+                  <TableCell align="right">
+                    <strong>GST</strong>
+                  </TableCell>
+
+                  <TableCell align="right">
+                    <strong>Total</strong>
+                  </TableCell>
+
+                </TableRow>
+
+              </TableHead>
+
+              <TableBody>
 
                 {purchase.products?.length ? (
 
                   purchase.products.map(
                     (item, index) => (
 
-                      <div
-                        key={index}
-                        className="flex justify-between p-4"
-                      >
+                      <TableRow key={index} hover>
 
-                        <div>
+                        <TableCell>
+                          {item.product?.name}
+                        </TableCell>
 
-                          <p className="font-semibold">
-                            {item.product?.name}
-                          </p>
+                        <TableCell align="center">
+                          {item.quantity}
+                        </TableCell>
 
-                          <p className="text-sm text-slate-500">
-                            ₹{item.purchasePrice} × {item.quantity}
-                          </p>
+                        <TableCell align="right">
+                          ₹
+                          {Number(
+                            item.purchasePrice
+                          ).toLocaleString("en-IN")}
+                        </TableCell>
 
-                        </div>
+                        <TableCell align="right">
+                          {item.gst || 0}%
+                        </TableCell>
 
-                        <div className="text-right">
+                        <TableCell
+                          align="right"
+                          sx={{
+                            fontWeight: 700,
+                          }}
+                        >
+                          ₹
+                          {(
+                            item.purchasePrice *
+                            item.quantity
+                          ).toLocaleString("en-IN")}
+                        </TableCell>
 
-                          <p>
-                            Qty : {item.quantity}
-                          </p>
-
-                          <p className="font-semibold">
-                            ₹
-                            {item.purchasePrice *
-                              item.quantity}
-                          </p>
-
-                        </div>
-
-                      </div>
+                      </TableRow>
 
                     )
                   )
 
                 ) : (
 
-                  <div className="p-4 text-slate-500">
-                    No Products
-                  </div>
+                  <TableRow>
+
+                    <TableCell
+                      colSpan={5}
+                      align="center"
+                    >
+                      No Products Found
+                    </TableCell>
+
+                  </TableRow>
 
                 )}
 
-              </div>
+              </TableBody>
 
-            </div>
+            </Table>
 
-            <div>
+          </TableContainer>
 
-              <h3 className="font-semibold mb-3">
-                Amount Summary
-              </h3>
+        </Paper>
+                {/* Notes */}
 
-              <div className="bg-slate-50 rounded-xl p-5 space-y-3">
+        <Paper
+          elevation={0}
+          sx={{
+            mt: 4,
+            borderRadius: 3,
+            border: "1px solid #E2E8F0",
+            p: 3,
+          }}
+        >
+          <Typography
+            variant="h6"
+            fontWeight={700}
+            mb={2}
+          >
+            Notes
+          </Typography>
 
-                <div className="flex justify-between">
-                  <span>Subtotal</span>
-                  <span>₹{subtotal}</span>
-                </div>
+          <Typography
+            color="text.secondary"
+            sx={{
+              whiteSpace: "pre-wrap",
+            }}
+          >
+            {purchase.notes || "No Notes Available"}
+          </Typography>
+        </Paper>
 
-                <div className="flex justify-between">
-                  <span>GST</span>
-                  <span>₹{gstAmount}</span>
-                </div>
+        {/* Purchase Timeline */}
 
-                <hr />
+        <Box mt={4}>
 
-                <div className="flex justify-between font-bold text-lg">
-
-                  <span>Total</span>
-
-                  <span>
-                    ₹{purchase.totalAmount}
-                  </span>
-
-                </div>
-
-              </div>
-
-            </div>
-
-          </div>
-
-        </div>
-
-        {/* Timeline */}
-
-        <div className="px-8">
-
-          <h3 className="font-semibold mb-4">
+          <Typography
+            variant="h6"
+            fontWeight={700}
+            mb={2}
+          >
             Purchase Timeline
-          </h3>
+          </Typography>
 
-          <div className="grid md:grid-cols-4 gap-4">
+          <Grid container spacing={2}>
 
-            <div className="bg-green-50 rounded-xl p-4 text-center">
-              <FaCheckCircle className="mx-auto text-green-600 text-xl mb-2" />
-              Created
-            </div>
+            <Grid item xs={6} md={3}>
+              <Paper
+                elevation={0}
+                sx={{
+                  p: 3,
+                  borderRadius: 3,
+                  border: "1px solid #DCFCE7",
+                  bgcolor: "#F0FDF4",
+                  textAlign: "center",
+                }}
+              >
+                <FaCheckCircle
+                  size={24}
+                  color="#16A34A"
+                />
 
-            <div className="bg-green-50 rounded-xl p-4 text-center">
-              <FaCheckCircle className="mx-auto text-green-600 text-xl mb-2" />
-              Approved
-            </div>
+                <Typography
+                  mt={1}
+                  fontWeight={600}
+                >
+                  Created
+                </Typography>
+              </Paper>
+            </Grid>
 
-            <div className="bg-blue-50 rounded-xl p-4 text-center">
-              <FaTruck className="mx-auto text-blue-600 text-xl mb-2" />
-              Supplier Shipped
-            </div>
+            <Grid item xs={6} md={3}>
+              <Paper
+                elevation={0}
+                sx={{
+                  p: 3,
+                  borderRadius: 3,
+                  border: "1px solid #DCFCE7",
+                  bgcolor: "#F0FDF4",
+                  textAlign: "center",
+                }}
+              >
+                <FaCheckCircle
+                  size={24}
+                  color="#16A34A"
+                />
 
-            <div className="bg-yellow-50 rounded-xl p-4 text-center">
-              {purchase.status}
-            </div>
+                <Typography
+                  mt={1}
+                  fontWeight={600}
+                >
+                  Approved
+                </Typography>
+              </Paper>
+            </Grid>
 
-          </div>
+            <Grid item xs={6} md={3}>
+              <Paper
+                elevation={0}
+                sx={{
+                  p: 3,
+                  borderRadius: 3,
+                  border: "1px solid #DBEAFE",
+                  bgcolor: "#EFF6FF",
+                  textAlign: "center",
+                }}
+              >
+                <FaTruck
+                  size={24}
+                  color="#2563EB"
+                />
 
-        </div>
+                <Typography
+                  mt={1}
+                  fontWeight={600}
+                >
+                  Supplier Shipped
+                </Typography>
+              </Paper>
+            </Grid>
 
-        {/* Footer */}
+            <Grid item xs={6} md={3}>
+              <Paper
+                elevation={0}
+                sx={{
+                  p: 3,
+                  borderRadius: 3,
+                  textAlign: "center",
+                  border:
+                    purchase.status === "Received"
+                      ? "1px solid #DCFCE7"
+                      : "1px solid #FEF3C7",
+                  bgcolor:
+                    purchase.status === "Received"
+                      ? "#F0FDF4"
+                      : "#FEFCE8",
+                }}
+              >
+                <Typography
+                  variant="h6"
+                  fontWeight={700}
+                >
+                  {purchase.status}
+                </Typography>
+              </Paper>
+            </Grid>
 
-        <div className="flex justify-end gap-4 px-8 py-6 border-t mt-8">
+          </Grid>
+      
+        </Box>
+   </DialogContent>
 
-          <button
-            onClick={onClose}
-            className="px-6 py-3 rounded-xl border hover:bg-slate-100"
-          >
-            Close
-          </button>
+      <DialogActions
+        sx={{
+          px: 3,
+          py: 2.5,
+          gap: 2,
+          flexWrap: "wrap",
+          justifyContent: {
+            xs: "center",
+            sm: "flex-end",
+          },
+          borderTop: "1px solid #E2E8F0",
+        }}
+      >
+        <Button
+          variant="outlined"
+          onClick={onClose}
+          sx={{
+            borderRadius: 2,
+            textTransform: "none",
+            px: 3,
+            minWidth: 120,
+          }}
+        >
+          Close
+        </Button>
 
-          <button
-            className="px-6 py-3 rounded-xl bg-green-600 hover:bg-green-700 text-white"
-          >
-            Receive Stock
-          </button>
+        <Button
+          variant="contained"
+          color="success"
+          startIcon={<FaTruck />}
+          sx={{
+            borderRadius: 2,
+            textTransform: "none",
+            px: 3,
+            minWidth: 170,
+            boxShadow: "none",
+            "&:hover": {
+              boxShadow: "none",
+            },
+          }}
+        >
+          Receive Stock
+        </Button>
 
-          <button
-            className="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2"
-          >
-            <FaPrint />
-            Print PO
-          </button>
+        <Button
+          variant="contained"
+          startIcon={<FaPrint />}
+          sx={{
+            bgcolor: "#2563EB",
+            borderRadius: 2,
+            textTransform: "none",
+            px: 3,
+            minWidth: 140,
+            boxShadow: "none",
+            "&:hover": {
+              bgcolor: "#1D4ED8",
+              boxShadow: "none",
+            },
+          }}
+        >
+          Print PO
+        </Button>
+      </DialogActions>
 
-        </div>
-
-      </div>
-
-    </div>
+    </Dialog>
+  //</Grid>
   );
 };
 
 export default PurchaseDetailsModal;
+    

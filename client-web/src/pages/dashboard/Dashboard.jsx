@@ -8,21 +8,19 @@ import {
 import { useEffect, useState } from "react";
 import { getDashboard } from "../../services/dashboardService";
 
+// Dashboard Components
+import WelcomeBanner from "../../components/dashboard/WelcomeBanner";
 import StatCard from "../../components/dashboard/StatsCard";
+import BusinessWorkflow from "../../components/dashboard/BusinessWorkflow";
+import RecentCustomers from "../../components/dashboard/RecentCustomers";
+import ProductsOverview from "../../components/dashboard/ProductsOverview";
+
+// Charts
 import SalesChart from "../../components/charts/SalesChart";
 import RevenueChart from "../../components/charts/RevenueChart";
-import RecentOrders from "../../components/dashboard/RecentOrders";
-import RecentCustomers from "../../components/dashboard/RecentCustomers";
-import QuickActions from "../../components/dashboard/QuickActions";
-import RecentActivity from "../../components/dashboard/RecentActivity";
 
 const Dashboard = () => {
-  const [dashboard, setDashboard] = useState({
-    totalCustomers: 0,
-    totalEmployees: 0,
-    totalProducts: 0,
-    totalRevenue: 0,
-  });
+ const [dashboard, setDashboard] = useState(null);
 
   const [loading, setLoading] = useState(true);
 
@@ -32,6 +30,7 @@ const Dashboard = () => {
         const res = await getDashboard();
 
         setDashboard(res.data.dashboard);
+        console.log("Dashboard State:", res.data.dashboard);
       } catch (err) {
         console.error("Dashboard Error:", err);
       } finally {
@@ -41,19 +40,22 @@ const Dashboard = () => {
 
     fetchDashboard();
   }, []);
+  
+  
+
+  console.log("Rendering Dashboard", dashboard);
 
   return (
-    <div className="max-w-[1600px] mx-auto flex flex-col gap-10">
-
-      {/* Header */}
-
+    <div className="flex flex-col gap-8 p-6 w-full">
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+    
       </div>
+    <div className="max-w-[1600px] mx-auto flex flex-col gap-8 p-2 md:p-0">
+      {/* Welcome Banner */}
+      <WelcomeBanner />
 
       {/* Statistics Cards */}
-
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-8">
-
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
         <StatCard
           title="Customers"
           value={loading ? "..." : dashboard.totalCustomers}
@@ -85,34 +87,27 @@ const Dashboard = () => {
           icon={<FaMoneyBillWave />}
           color="bg-purple-600"
         />
-
       </div>
 
       {/* Charts */}
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <SalesChart />
-
         <RevenueChart />
-
       </div>
 
-      {/* Bottom Widgets */}
+      {/* Business Workflow */}
+      <BusinessWorkflow />
 
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+      {/* Bottom Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <RecentCustomers
+    customers={dashboard?.recentCustomers || []}
+/>
 
-        <RecentOrders />
-
-        <RecentCustomers />
-
-        <QuickActions />
-
-        <RecentActivity />
-
+        <ProductsOverview  products={dashboard?.productStock || []}/>
       </div>
-
     </div>
+  </div>
   );
 };
 

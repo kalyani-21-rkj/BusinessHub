@@ -1,5 +1,7 @@
 /* eslint-disable react-hooks/set-state-in-effect */
+
 import { useEffect, useState } from "react";
+
 import {
   FaUserCheck,
   FaUserTimes,
@@ -20,6 +22,7 @@ const AttendanceStats = () => {
 
   const [loading, setLoading] = useState(true);
 
+
   const fetchStats = async () => {
     try {
       const res = await getAttendanceStats();
@@ -31,7 +34,6 @@ const AttendanceStats = () => {
       setLoading(false);
     }
   };
-
   useEffect(() => {
     fetchStats();
   }, []);
@@ -40,62 +42,58 @@ const AttendanceStats = () => {
     {
       title: "Present",
       value: stats.present,
-      icon: <FaUserCheck size={28} />,
-      bg: "bg-green-100",
-      text: "text-green-600",
+      icon: <FaUserCheck />,
+      color: "bg-green-500",
     },
     {
       title: "Absent",
       value: stats.absent,
-      icon: <FaUserTimes size={28} />,
-      bg: "bg-red-100",
-      text: "text-red-600",
+      icon: <FaUserTimes />,
+      color: "bg-red-500",
     },
     {
       title: "Half Day",
       value: stats.halfDay,
-      icon: <FaClock size={28} />,
-      bg: "bg-yellow-100",
-      text: "text-yellow-600",
+      icon: <FaClock />,
+      color: "bg-yellow-500",
     },
     {
       title: "Leave",
       value: stats.leave,
-      icon: <FaUmbrellaBeach size={28} />,
-      bg: "bg-blue-100",
-      text: "text-blue-600",
+      icon: <FaUmbrellaBeach />,
+      color: "bg-blue-500",
     },
   ];
 
   if (loading) {
     return (
-      <div className="bg-white rounded-xl p-6 text-center shadow">
+      <div className="bg-white rounded-2xl shadow-lg p-6 text-center">
         Loading Statistics...
       </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
-      {cards.map((item) => (
+    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+      {cards.map((card) => (
         <div
-          key={item.title}
-          className="bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300 p-6 flex items-center justify-between"
+          key={card.title}
+          className="bg-white mb-10 rounded-2xl shadow-sm p-6 h-32 flex justify-between items-center hover:shadow-xl transition-all duration-300"
         >
           <div>
-            <p className="text-sm text-slate-500">
-              {item.title}
+            <p className="text-gray-500 text-sm">
+              {card.title}
             </p>
 
-            <h2 className="text-3xl font-bold mt-2 text-slate-800">
-              {item.value}
+            <h2 className="text-3xl font-bold mt-2 text-gray-800">
+              {card.value}
             </h2>
           </div>
 
           <div
-            className={`h-16 w-16 rounded-2xl flex items-center justify-center ${item.bg} ${item.text}`}
+            className={`w-16 h-16 rounded-2xl flex items-center justify-center text-white text-2xl ${card.color}`}
           >
-            {item.icon}
+            {card.icon}
           </div>
         </div>
       ))}

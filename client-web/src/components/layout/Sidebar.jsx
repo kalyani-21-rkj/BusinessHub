@@ -23,6 +23,8 @@ import {
 
 import { Link, useLocation } from "react-router-dom";
 //import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
+//const user = JSON.parse(localStorage.getItem("user"));
+//const role = user?.role || "admin";
 
 const menuItems = [
   {
@@ -123,12 +125,12 @@ const Sidebar = ({ open, setOpen }) => {
 
   return (
     <aside
-      className={`bg-[#132246] text-white h-screen flex flex-col transition-all duration-300 ${
+      className={`bg-slate-800 text-white h-screen flex flex-col transition-all duration-300 ${
         open ? "w-64" : "w-20"
       }`}
     >
       {/* Header */}
-      <div className="border-b border-slate-700 p-4">
+      <div className="border-b border-slate-800 p-4">
         <div
           className={
             open
@@ -173,8 +175,8 @@ const Sidebar = ({ open, setOpen }) => {
         open ? "gap-5 px-5 justify-start" : "justify-center"
       } py-4 rounded-xl transition-all duration-300 ${
         location.pathname === item.path
-          ? "bg-blue-600 shadow-md"
-          : "hover:bg-slate-800"
+          ? "bg-gradient-to-r from-blue-600 to-blue-500 shadow-md"
+          : "hover:bg-slate-800 hover:translate-x-1"
       }`}
     >
       <span className="text-xl">{item.icon}</span>
@@ -198,8 +200,8 @@ const Sidebar = ({ open, setOpen }) => {
         open ? "gap-5 px-5 justify-start" : "justify-center"
       } py-4 rounded-xl transition-all duration-300 ${
         location.pathname === item.path
-          ? "bg-blue-600 shadow-md"
-          : "hover:bg-slate-800"
+          ? "bg-gradient-to-r from-blue-600 to-blue-500 shadow-md"
+          : "hover:bg-slate-800 hover:translate-x-1"
       }`}
     >
       <span className="text-xl">{item.icon}</span>
@@ -223,8 +225,8 @@ const Sidebar = ({ open, setOpen }) => {
         open ? "gap-5 px-5 justify-start" : "justify-center"
       } py-4 rounded-xl transition-all duration-300 ${
         location.pathname === item.path
-          ? "bg-blue-600 shadow-md"
-          : "hover:bg-slate-800"
+          ? "bg-gradient-to-r from-blue-600 to-blue-500 shadow-md"
+          : "hover:bg-slate-800 hover:translate-x-1"
       }`}
     >
       <span className="text-xl">{item.icon}</span>

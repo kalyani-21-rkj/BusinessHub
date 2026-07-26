@@ -7,6 +7,9 @@ import Login from "../pages/auth/Login";
 
 // Dashboard
 import Dashboard from "../pages/dashboard/Dashboard";
+import Register from "../pages/auth/Register";
+import ProtectedRoute from "../components/auth/ProtectedRoute";
+
 
 // CRM
 import Customers from "../pages/customers/Customers";
@@ -35,16 +38,6 @@ const AppRoutes = () => {
       {/* Login */}
       <Route path="/login" element={<Login />} />
 
-      {/* Dashboard */}
-      <Route
-        path="/dashboard"
-        element={
-          <DashboardLayout>
-            <Dashboard />
-          </DashboardLayout>
-        }
-      />
-
       {/* Customers */}
       <Route
         path="/customers"
@@ -55,72 +48,96 @@ const AppRoutes = () => {
         }
       />
 
-      {/* Employees */}
       <Route
-        path="/employees"
-        element={
-          <DashboardLayout>
-            <Employees />
-          </DashboardLayout>
-        }
-      />
+  path="/dashboard"
+  element={
+    <ProtectedRoute roles={["admin", "hr", "customer"]}>
+      <DashboardLayout>
+        <Dashboard />
+      </DashboardLayout>
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/employees"
+  element={
+    <ProtectedRoute roles={["admin", "hr"]}>
+      <DashboardLayout>
+        <Employees />
+      </DashboardLayout>
+    </ProtectedRoute>
+  }
+/>
 
       {/* HR */}
 
       <Route
-        path="/attendance"
-        element={
-          <DashboardLayout>
-            <Attendance />
-          </DashboardLayout>
-        }
-      />
+  path="/attendance"
+  element={
+    <ProtectedRoute roles={["admin", "hr"]}>
+      <DashboardLayout>
+        <Attendance />
+      </DashboardLayout>
+    </ProtectedRoute>
+  }
+/>
 
       <Route
-        path="/leave"
-        element={
-          <DashboardLayout>
-            <Leave />
-          </DashboardLayout>
-        }
-      />
+  path="/leave"
+  element={
+    <ProtectedRoute roles={["admin", "hr"]}>
+      <DashboardLayout>
+        <Leave />
+      </DashboardLayout>
+    </ProtectedRoute>
+  }
+/>
 
       <Route
-        path="/payroll"
-        element={
-          <DashboardLayout>
-            <Payroll />
-          </DashboardLayout>
-        }
-      />
+  path="/payroll"
+  element={
+    <ProtectedRoute roles={["admin", "hr"]}>
+      <DashboardLayout>
+        <Payroll />
+      </DashboardLayout>
+    </ProtectedRoute>
+  }
+/>
 
       {/* Products */}
       <Route
-        path="/products"
-        element={
-          <DashboardLayout>
-            <Products />
-          </DashboardLayout>
-        }
-      />
+  path="/products"
+  element={
+    <ProtectedRoute roles={["admin"]}>
+      <DashboardLayout>
+        <Products />
+      </DashboardLayout>
+    </ProtectedRoute>
+  }
+/>
 
       {/* Inventory */}
       <Route
         path="/inventory"
         element={
+          <ProtectedRoute roles={["admin", "customer"]}>
           <DashboardLayout>
             <Inventory />
           </DashboardLayout>
-        }
-      />
+        </ProtectedRoute>
+  }
+/>
 
       {/* Purchases */}
       <Route
         path="/purchases"
         element={
+          <ProtectedRoute roles={["admin"]}>
           <DashboardLayout>
             <Purchases />
           </DashboardLayout>
+          </ProtectedRoute>
         }
       />
 
@@ -128,9 +145,11 @@ const AppRoutes = () => {
       <Route
         path="/orders"
         element={
+          <ProtectedRoute roles={["admin"]}>
           <DashboardLayout>
             <Orders />
           </DashboardLayout>
+          </ProtectedRoute>
         }
       />
 
@@ -138,9 +157,11 @@ const AppRoutes = () => {
       <Route
         path="/billing"
         element={
+          <ProtectedRoute roles={["admin"]}>
           <DashboardLayout>
             <Billing />
           </DashboardLayout>
+          </ProtectedRoute>
         }
       />
 
@@ -148,9 +169,11 @@ const AppRoutes = () => {
       <Route
         path="/suppliers"
         element={
+          <ProtectedRoute roles={["admin"]}>
           <DashboardLayout>
             <Suppliers />
           </DashboardLayout>
+          </ProtectedRoute>
         }
       />
 
@@ -158,9 +181,11 @@ const AppRoutes = () => {
       <Route
         path="/payments"
         element={
+          <ProtectedRoute roles={["admin"]}>
           <DashboardLayout>
             <Payments />
           </DashboardLayout>
+          </ProtectedRoute>
         }
       />
 
@@ -168,9 +193,11 @@ const AppRoutes = () => {
       <Route
         path="/returns"
         element={
+          <ProtectedRoute roles={["admin"]}>
           <DashboardLayout>
             <Returns />
           </DashboardLayout>
+          </ProtectedRoute>
         }
       />
 
@@ -203,11 +230,16 @@ const AppRoutes = () => {
           </DashboardLayout>
         }
       />
+      <Route
+  path="/register"
+  element={<Register />}
+/>
+<Route path="/register" element={<Register />} />
 
       {/* Default */}
       <Route path="/" element={<Navigate to="/login" replace />} />
       <Route path="*" element={<Navigate to="/login" replace />} />
-
+      
     </Routes>
   );
 };

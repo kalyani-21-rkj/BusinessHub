@@ -1,3 +1,7 @@
+/* eslint-disable react-hooks/set-state-in-effect */
+
+import { useEffect, useState } from "react";
+
 import {
   FaBoxOpen,
   FaWarehouse,
@@ -5,7 +9,6 @@ import {
   FaRupeeSign,
 } from "react-icons/fa";
 
-import { useEffect, useState } from "react";
 import { getProductStats } from "../../services/productService";
 
 const ProductStats = () => {
@@ -20,8 +23,6 @@ const ProductStats = () => {
 
   const fetchStats = async () => {
     try {
-      setLoading(true);
-
       const res = await getProductStats();
 
       setStats(
@@ -33,7 +34,7 @@ const ProductStats = () => {
         }
       );
     } catch (err) {
-      console.error(err);
+      console.log(err);
     } finally {
       setLoading(false);
     }
@@ -43,52 +44,62 @@ const ProductStats = () => {
     fetchStats();
   }, []);
 
-  const statsData = [
+  const cards = [
     {
       title: "Total Products",
       value: stats.totalProducts,
       icon: <FaBoxOpen />,
-      color: "bg-blue-200",
+      color: "bg-blue-500",
     },
     {
       title: "In Stock",
       value: stats.inStock,
       icon: <FaWarehouse />,
-      color: "bg-green-200",
+      color: "bg-green-500",
     },
     {
       title: "Low Stock",
       value: stats.lowStock,
       icon: <FaExclamationTriangle />,
-      color: "bg-orange-200",
+      color: "bg-yellow-500",
     },
     {
       title: "Revenue",
-      value: `₹${stats.revenue}`,
+      value: `₹${Number(stats.revenue || 0).toLocaleString("en-IN")}`,
       icon: <FaRupeeSign />,
-      color: "bg-purple-200",
+      color: "bg-purple-500",
     },
   ];
 
+  if (loading) {
+    return (
+      <div className="bg-white rounded-2xl shadow-lg p-6 text-center">
+        Loading Statistics...
+      </div>
+    );
+  }
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full h-auto">
-      {statsData.map((item) => (
+    <div className="grid grid-cols-1 mt-2 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+      {cards.map((card) => (
         <div
-          key={item.title}
-          className="bg-white rounded-2xl border-none shadow-sm border p-6 flex justify-between items-center hover:shadow-lg transition"
+          key={card.title}
+          className="bg-white mb-10 rounded-2xl shadow-sm p-6 h-32 flex justify-between items-center hover:shadow-xl transition-all duration-300"
         >
           <div>
-            <p className="text-gray-500">{item.title}</p>
+            <p className="text-gray-500 text-sm">
+              {card.title}
+            </p>
 
-            <h2 className="text-3xl font-bold mt-2">
-              {loading ? "..." : item.value}
+            <h2 className="text-3xl font-bold mt-2 text-gray-800">
+              {card.value}
             </h2>
           </div>
 
           <div
-            className={`${item.color} h-16 w-16 rounded-2xl flex items-center justify-center text-white text-3xl`}
+            className={`w-16 h-16 rounded-2xl flex items-center justify-center text-white text-2xl ${card.color}`}
           >
-            {item.icon}
+            {card.icon}
           </div>
         </div>
       ))}

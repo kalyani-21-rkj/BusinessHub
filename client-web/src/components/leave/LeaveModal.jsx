@@ -3,6 +3,19 @@
 import { useEffect, useState } from "react";
 
 import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Divider,
+  Typography,
+  Grid,
+  TextField,
+  MenuItem,
+  Button,
+} from "@mui/material";
+
+import {
   applyLeave,
   updateLeave,
 } from "../../services/leaveService";
@@ -15,7 +28,6 @@ const LeaveModal = ({
   onClose,
   onSuccess,
 }) => {
-
   const [loading, setLoading] = useState(false);
 
   const [employees, setEmployees] = useState([]);
@@ -31,33 +43,22 @@ const LeaveModal = ({
   });
 
   useEffect(() => {
-
     const fetchEmployees = async () => {
-
       try {
-
         const res = await getAllEmployees();
 
         setEmployees(res.data.employees || []);
-
       } catch (err) {
-
         console.log(err);
-
       }
-
     };
 
     fetchEmployees();
-
   }, []);
 
   useEffect(() => {
-
     if (leave) {
-
       setFormData({
-
         employee:
           leave.employee?._id ||
           leave.employee ||
@@ -88,11 +89,8 @@ const LeaveModal = ({
 
         reason:
           leave.reason || "",
-
       });
-
     } else {
-
       setFormData({
         employee: "",
         department: "",
@@ -102,19 +100,15 @@ const LeaveModal = ({
         status: "Pending",
         reason: "",
       });
-
     }
-
   }, [leave]);
 
   const handleChange = (e) => {
-
     const { name, value } = e.target;
 
     if (name === "employee") {
-
       const emp = employees.find(
-        (e) => e._id === value
+        (item) => item._id === value
       );
 
       setFormData({
@@ -124,22 +118,18 @@ const LeaveModal = ({
       });
 
       return;
-
     }
 
     setFormData({
       ...formData,
       [name]: value,
     });
-
   };
 
   const handleSubmit = async (e) => {
-
     e.preventDefault();
 
     try {
-
       setLoading(true);
 
       const totalDays =
@@ -150,264 +140,319 @@ const LeaveModal = ({
         ) + 1;
 
       const payload = {
-
         employee: formData.employee,
-
         leaveType: formData.type,
-
         fromDate: formData.from,
-
         toDate: formData.to,
-
         totalDays,
-
         reason: formData.reason,
-
         status: formData.status,
-
       };
 
       if (leave?._id) {
-
         await updateLeave(
           leave._id,
           payload
         );
 
         alert("Leave Updated Successfully");
-
       } else {
-
         await applyLeave(payload);
 
         alert("Leave Applied Successfully");
-
       }
 
       onSuccess();
 
       onClose();
-
     } catch (err) {
-
       console.log(err);
 
       alert(
         err.response?.data?.message ||
           "Unable to Save Leave"
       );
-
     } finally {
-
       setLoading(false);
-
     }
-
   };
 
   if (!open) return null;
 
   return (
+  <Dialog
+    open={open}
+    onClose={onClose}
+    maxWidth="md"
+    fullWidth
+    slotProps={{
+      paper: {
+        sx: {
+          borderRadius: 4,
+        },
+      },
+    }}
+  >
+    {/* Header */}
 
-    <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
+    <DialogTitle
+      sx={{
+        background:
+          "linear-gradient(135deg,#2563EB,#1D4ED8)",
+        color: "#fff",
+        py: 3,
+      }}
+    >
+      <Typography
+        fontSize={28}
+        fontWeight={700}
+      >
+        {leave
+          ? "Update Leave"
+          : "Apply Leave"}
+      </Typography>
 
-      <div className="bg-white w-full max-w-2xl rounded-2xl shadow-xl p-6">
+      <Typography
+        variant="body2"
+        sx={{
+          opacity: 0.9,
+          mt: 0.5,
+        }}
+      >
+        Fill leave details
+      </Typography>
+    </DialogTitle>
 
-        <div className="flex justify-between items-center mb-6">
+    <Divider />
 
-          <h2 className="text-2xl font-bold text-slate-800">
-            {leave ? "Leave Details" : "Apply Leave"}
-          </h2>
+    <form onSubmit={handleSubmit}>
 
-          <button
-            onClick={onClose}
-            className="text-2xl hover:text-red-600"
-          >
-            ×
-          </button>
+      <DialogContent sx={{ p: 4 }}>
 
-        </div>
+        <Grid container spacing={3}>
 
-        <form onSubmit={handleSubmit}>
+          {/* Employee */}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <Grid item xs={12} md={6}>
 
-            <div>
+            <TextField
+              select
+              fullWidth
+              label="Employee"
+              name="employee"
+              value={formData.employee}
+              onChange={handleChange}
+            >
 
-              <label className="block mb-2 font-medium">
-                Employee
-              </label>
+              <MenuItem value="">
+                Select Employee
+              </MenuItem>
 
-              <select
-                name="employee"
-                value={formData.employee}
-                onChange={handleChange}
-                className="w-full border rounded-xl px-4 py-3"
-              >
+              {employees.map((emp) => (
+                <MenuItem
+                  key={emp._id}
+                  value={emp._id}
+                >
+                  {emp.fullName}
+                </MenuItem>
+              ))}
 
-                <option value="">
-                  Select Employee
-                </option>
+            </TextField>
 
-                {employees.map((emp) => (
+          </Grid>
 
-                  <option
-                    key={emp._id}
-                    value={emp._id}
-                  >
-                    {emp.fullName}
-                  </option>
+          {/* Department */}
 
-                ))}
+          <Grid item xs={12} md={6}>
 
-              </select>
+            <TextField
+              fullWidth
+              label="Department"
+              value={formData.department}
+              InputProps={{
+                readOnly: true,
+              }}
+            />
 
-            </div>
+          </Grid>
 
-            <div>
+          {/* Leave Type */}
 
-              <label className="block mb-2 font-medium">
-                Department
-              </label>
+          <Grid item xs={12} md={6}>
 
-              <input
-                type="text"
-                value={formData.department}
-                readOnly
-                className="w-full border rounded-xl px-4 py-3 bg-slate-100"
-              />
+            <TextField
+              select
+              fullWidth
+              label="Leave Type"
+              name="type"
+              value={formData.type}
+              onChange={handleChange}
+            >
 
-            </div>
+              <MenuItem value="Casual">
+                Casual
+              </MenuItem>
 
-            <div>
+              <MenuItem value="Sick">
+                Sick
+              </MenuItem>
 
-              <label className="block mb-2 font-medium">
-                Leave Type
-              </label>
+              <MenuItem value="Paid">
+                Paid
+              </MenuItem>
 
-              <select
-                name="type"
-                value={formData.type}
-                onChange={handleChange}
-                className="w-full border rounded-xl px-4 py-3"
-              >
+              <MenuItem value="Emergency">
+                Emergency
+              </MenuItem>
 
-                <option>Casual</option>
-                <option>Sick</option>
-                <option>Paid</option>
-                <option>Emergency</option>
-                <option>Maternity</option>
-                <option>Paternity</option>
+              <MenuItem value="Maternity">
+                Maternity
+              </MenuItem>
 
-              </select>
+              <MenuItem value="Paternity">
+                Paternity
+              </MenuItem>
 
-            </div>
+            </TextField>
 
-            <div>
+          </Grid>
 
-              <label className="block mb-2 font-medium">
-                Status
-              </label>
+          {/* Status */}
 
-              <select
-                name="status"
-                value={formData.status}
-                onChange={handleChange}
-                className="w-full border rounded-xl px-4 py-3"
-              >
+          <Grid item xs={12} md={6}>
 
-                <option>Pending</option>
-                <option>Approved</option>
-                <option>Rejected</option>
+            <TextField
+              select
+              fullWidth
+              label="Status"
+              name="status"
+              value={formData.status}
+              onChange={handleChange}
+            >
 
-              </select>
+              <MenuItem value="Pending">
+                Pending
+              </MenuItem>
 
-            </div>
+              <MenuItem value="Approved">
+                Approved
+              </MenuItem>
 
-            <div>
+              <MenuItem value="Rejected">
+                Rejected
+              </MenuItem>
 
-              <label className="block mb-2 font-medium">
-                From Date
-              </label>
+            </TextField>
 
-              <input
-                type="date"
-                name="from"
-                value={formData.from}
-                onChange={handleChange}
-                className="w-full border rounded-xl px-4 py-3"
-              />
+          </Grid>
 
-            </div>
+          {/* From Date */}
 
-            <div>
+          <Grid item xs={12} md={6}>
 
-              <label className="block mb-2 font-medium">
-                To Date
-              </label>
+            <TextField
+              fullWidth
+              size="small"
+              label="From Date"
+              type="date"
+              name="from"
+             value={formData.from}
+             onChange={handleChange}
+               slotProps={{
+              inputLabel: {
+              shrink: true,
+            },
+          }}
+        />
+          </Grid>
 
-              <input
-                type="date"
-                name="to"
-                value={formData.to}
-                onChange={handleChange}
-                className="w-full border rounded-xl px-4 py-3"
-              />
+          {/* To Date */}
 
-            </div>
+          <Grid item xs={12} md={6}>
 
-          </div>
+            <TextField
+              fullWidth
+              size="small"
+              label="To Date"
+              type="date"
+              name="to"
+              value={formData.to}
+              onChange={handleChange}
+            slotProps={{
+              inputLabel: {
+              shrink: true,
+          },
+        }}
+      />
 
-          <div className="mt-5">
+          </Grid>
 
-            <label className="block mb-2 font-medium">
-              Reason
-            </label>
+          {/* Reason */}
 
-            <textarea
-              rows="4"
+          <Grid item xs={12}>
+
+            <TextField
+              fullWidth
+              multiline
+              rows={4}
+              label="Reason"
               name="reason"
               value={formData.reason}
               onChange={handleChange}
               placeholder="Enter leave reason..."
-              className="w-full border rounded-xl px-4 py-3 resize-none"
             />
 
-          </div>
+          </Grid>
 
-          <div className="flex justify-end gap-3 mt-8">
+        </Grid>
 
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-6 py-3 border rounded-xl hover:bg-slate-100"
-            >
-              Cancel
-            </button>
+      </DialogContent>
+            <DialogActions
+        sx={{
+          px: 3,
+          pb: 3,
+          gap: 2,
+          justifyContent: "flex-end",
+        }}
+      >
+        <Button
+          variant="outlined"
+          onClick={onClose}
+          sx={{
+            borderRadius: 2,
+            textTransform: "none",
+            px: 3,
+          }}
+        >
+          Cancel
+        </Button>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl"
-            >
+        <Button
+          type="submit"
+          variant="contained"
+          disabled={loading}
+          sx={{
+            borderRadius: 2,
+            textTransform: "none",
+            px: 3,
+            bgcolor: "#2563EB",
+            "&:hover": {
+              bgcolor: "#1D4ED8",
+            },
+          }}
+        >
+          {loading
+            ? "Saving..."
+            : leave
+            ? "Update Leave"
+            : "Apply Leave"}
+        </Button>
+      </DialogActions>
 
-              {loading
-                ? "Saving..."
-                : leave
-                ? "Update Leave"
-                : "Apply Leave"}
+    </form>
 
-            </button>
-
-          </div>
-
-        </form>
-
-      </div>
-
-    </div>
-
-  );
+  </Dialog>
+);
 
 };
 

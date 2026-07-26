@@ -1,138 +1,136 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 
-import { Search, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import LeaveTable from "../../components/leave/LeaveTable";
 import LeaveModal from "../../components/leave/LeaveModal";
 import LeaveStats from "../../components/leave/LeaveStats";
+import LeaveFilters from "../../components/leave/LeaveFilters";
 
 import { getLeaves } from "../../services/leaveService";
 
 const Leave = () => {
-
   const [leaves, setLeaves] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const [keyword, setKeyword] = useState("");
+  const [status, setStatus] = useState("");
+  const [department, setDepartment] = useState("");
+  const [leaveType, setLeaveType] = useState("");
 
   const [openModal, setOpenModal] = useState(false);
-
   const [selectedLeave, setSelectedLeave] = useState(null);
 
   const fetchLeaves = async (search = "") => {
-
     try {
-
       setLoading(true);
 
       const res = await getLeaves(1, search);
 
-      setLeaves(res.data.leaves || []);
+      let records = res.data.leaves || [];
 
+      // Department Filter
+      if (department) {
+        records = records.filter(
+          (item) =>
+            item.employee?.department === department
+        );
+      }
+
+      // Leave Type Filter
+      if (leaveType) {
+        records = records.filter(
+          (item) => item.leaveType === leaveType
+        );
+      }
+
+      // Status Filter
+      if (status) {
+        records = records.filter(
+          (item) => item.status === status
+        );
+      }
+
+      setLeaves(records);
     } catch (err) {
-
       console.log(err);
-
     } finally {
-
       setLoading(false);
-
     }
-
   };
 
+  // Initial Load
   useEffect(() => {
-
     fetchLeaves();
-
   }, []);
 
+  // Search
   useEffect(() => {
-
     const timer = setTimeout(() => {
-
       fetchLeaves(keyword);
-
     }, 400);
 
     return () => clearTimeout(timer);
-
   }, [keyword]);
 
-  return (
+  // Filters
+  useEffect(() => {
+    fetchLeaves(keyword);
+  }, [status, department, leaveType]);
 
-   <div className="flex flex-col gap-8 p-6 w-full">
+  return (
+    <div className="flex flex-col gap-8 p-6 w-full">
+
+      {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4"></div>
 
+      {/* Stats */}
       <LeaveStats />
 
-      <div className="flex justify-between items-center">
+      {/* Filters */}
+      <LeaveFilters
+        keyword={keyword}
+        setKeyword={setKeyword}
+        department={department}
+        setDepartment={setDepartment}
+        leaveType={leaveType}
+        setLeaveType={setLeaveType}
+        status={status}
+        setStatus={setStatus}
+        onApplyLeave={() => {
+          setSelectedLeave(null);
+          setOpenModal(true);
+        }}
+      />
 
-        <div className="relative w-96">
-
-          <Search
-            className="absolute left-80 top-1/2 -translate-y-1/2 text-slate-400"
-            size={18}
-          />
-
-          <input
-            type="text"
-            placeholder="Search Leave..."
-            value={keyword}
-            onChange={(e) => setKeyword(e.target.value)}
-            className="w-full border rounded-xl py-3 pl-11 pr-4"
-          />
-
-        </div>
-
-        <button
-          onClick={() => {
-
-            setSelectedLeave(null);
-
-            setOpenModal(true);
-
-          }}
-          className="bg-blue-600 text-white px-6 py-3 rounded-xl flex items-center gap-2"
-        >
-
-          <Plus size={18} />
-
-          Apply Leave
-
-        </button>
-
-      </div>
-
-      <div className="bg-white rounded-xl shadow border overflow-hidden">
+      {/* Table */}
+      <div className="bg-white rounded-2xl shadow border border-slate-200 overflow-hidden">
 
         <LeaveTable
           leaves={leaves}
           loading={loading}
-          refreshLeaves={fetchLeaves}
+          refreshLeaves={() => fetchLeaves(keyword)}
           onEdit={(leave) => {
-
             setSelectedLeave(leave);
-
             setOpenModal(true);
-
           }}
         />
 
       </div>
 
+      {/* Modal */}
       <LeaveModal
         open={openModal}
-        onClose={() => setOpenModal(false)}
+        onClose={() => {
+          setOpenModal(false);
+          setSelectedLeave(null);
+        }}
         leave={selectedLeave}
-        onSuccess={fetchLeaves}
+        onSuccess={() => fetchLeaves(keyword)}
       />
 
     </div>
-
   );
-
 };
 
 export default Leave;

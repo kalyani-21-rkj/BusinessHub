@@ -2,6 +2,7 @@ import axios from "axios";
 
 const API = axios.create({
   baseURL: "https://businesshub-api-mgxa.onrender.com/api",
+  //baseURL: "http://localhost:4000/api",
   headers: {
     "Content-Type": "application/json",
   },

@@ -1,6 +1,24 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 import { useEffect, useState } from "react";
-import { FaTimes, FaPlus, FaTrash } from "react-icons/fa";
+
+import { FaPlus, FaTrash } from "react-icons/fa";
+
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Grid,
+  TextField,
+  MenuItem,
+  Button,
+  Typography,
+  Divider,
+  IconButton,
+  Paper,
+} from "@mui/material";
+
+import CloseIcon from "@mui/icons-material/Close";
 
 import { getProducts } from "../../services/productService";
 
@@ -22,7 +40,6 @@ const CreatePurchaseModal = ({
   onSave,
   purchase,
 }) => {
-
   const [form, setForm] = useState({
     supplier: purchase?.supplier || "",
     warehouse: purchase?.warehouse || "",
@@ -55,20 +72,17 @@ const CreatePurchaseModal = ({
   const [errors, setErrors] = useState({});
 
   const fetchProducts = async () => {
-  try {
-    const res = await getProducts();
-    console.log("Full Response:", res);
-    console.log("Response Data:", res.data);
-    console.log("Products:", res.data.products);
-    setProductList(res.data.products || []);
-  } catch (err) {
-    console.log(err);
-  }
-};
+    try {
+      const res = await getProducts();
+      setProductList(res.data.products || []);
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
-useEffect(() => {
-  fetchProducts();
-}, []);
+  useEffect(() => {
+    fetchProducts();
+  }, []);
 
   const handleChange = (e) => {
     setForm((prev) => ({
@@ -123,17 +137,14 @@ useEffect(() => {
         "Expected Date required";
 
     products.forEach((item, index) => {
-
       if (!item.product)
-        newErrors[`product${index}`] =
-          "Required";
+        newErrors[`product${index}`] = "Required";
 
       if (
         !item.quantity ||
         Number(item.quantity) <= 0
       )
-        newErrors[`quantity${index}`] =
-          "Invalid";
+        newErrors[`quantity${index}`] = "Invalid";
 
       if (
         !item.purchasePrice ||
@@ -149,7 +160,6 @@ useEffect(() => {
   };
 
   const handleSubmit = () => {
-
     if (!validate()) return;
 
     onSave({
@@ -160,153 +170,221 @@ useEffect(() => {
       status: purchase?.status || "Pending",
       products,
     });
-
   };
-
   return (
-  <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50 p-5">
-    <div className="bg-white rounded-2xl w-full max-w-5xl shadow-xl overflow-hidden">
+  <Dialog
+    open
+    onClose={onClose}
+    maxWidth="lg"
+    fullWidth
+    PaperProps={{
+      sx: {
+        borderRadius: 4,
+        width: "900px",   // or 1000px
+      maxWidth: "95vw",
+      },
+    }}
+  >
+    {/* Header */}
 
-      {/* Header */}
-
-      <div className="flex justify-between items-center border-b px-8 py-5">
-        <h2 className="text-2xl font-bold">
-          {purchase ? "Edit Purchase Order" : "Create Purchase Order"}
-        </h2>
-
-        <button
-          type="button"
-          onClick={onClose}
-          className="p-3 rounded-lg hover:bg-slate-100"
+    <DialogTitle
+      sx={{
+        bgcolor: "#2563EB",
+        color: "#fff",
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        py: 2,
+      }}
+    >
+      <div>
+        <Typography
+          variant="h5"
+          fontWeight={700}
         >
-          <FaTimes />
-        </button>
+          {purchase
+            ? "Edit Purchase Order"
+            : "Create Purchase Order"}
+        </Typography>
+
+        <Typography variant="body2">
+          Fill purchase order details
+        </Typography>
       </div>
 
-      {/* Body */}
+      <IconButton
+        onClick={onClose}
+        sx={{ color: "#fff" }}
+      >
+        <CloseIcon />
+      </IconButton>
+    </DialogTitle>
 
-      <div className="p-8 space-y-8">
+    <Divider />
 
-        {/* Supplier */}
+    <DialogContent sx={{ mt: 3 }}>
+      {/* Supplier Details */}
 
-        <div className="grid md:grid-cols-3 gap-5">
+      <Paper
+        elevation={0}
+        sx={{
+          p: 3,
+          mb: 3,
+          borderRadius: 3,
+          border: "1px solid #E5E7EB",
+        }}
+      >
+        <Typography
+          fontWeight={700}
+          mb={2}
+        >
+          Supplier Information
+        </Typography>
 
-          <div>
-            <label className="font-medium">
-              Supplier
-            </label>
+        <Grid container spacing={3}>
+          {/* Supplier */}
 
-            <select
+          <Grid item xs={12} md={6}>
+            <TextField
+              select
+              fullWidth
+              label="Supplier"
               name="supplier"
               value={form.supplier}
               onChange={handleChange}
-              className={`mt-2 w-full border rounded-xl p-3 ${
-                errors.supplier ? "border-red-500" : ""
-              }`}
+              error={!!errors.supplier}
+              helperText={errors.supplier}
             >
-              <option value="">Select Supplier</option>
+              <MenuItem value="">
+                Select Supplier
+              </MenuItem>
 
-              {suppliers.map((s) => (
-                <option key={s} value={s}>
-                  {s}
-                </option>
+              {suppliers.map((supplier) => (
+                <MenuItem
+                  key={supplier}
+                  value={supplier}
+                >
+                  {supplier}
+                </MenuItem>
               ))}
-            </select>
+            </TextField>
+          </Grid>
 
-            {errors.supplier && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.supplier}
-              </p>
-            )}
-          </div>
+          {/* Warehouse */}
 
-          <div>
-            <label className="font-medium">
-              Warehouse
-            </label>
-
-            <select
+          <Grid item xs={12} md={6}>
+            <TextField
+              select
+              fullWidth
+              size="large"
+              label="Warehouse"
               name="warehouse"
               value={form.warehouse}
               onChange={handleChange}
-              className={`mt-2 w-full border rounded-xl p-3 ${
-                errors.warehouse ? "border-red-500" : ""
-              }`}
+              error={!!errors.warehouse}
+              helperText={errors.warehouse}
             >
-              <option value="">Select Warehouse</option>
+              <MenuItem value="">
+                Select Warehouse
+              </MenuItem>
 
-              {warehouses.map((w) => (
-                <option key={w} value={w}>
-                  {w}
-                </option>
+              {warehouses.map((warehouse) => (
+                <MenuItem
+                  key={warehouse}
+                  value={warehouse}
+                >
+                  {warehouse}
+                </MenuItem>
               ))}
-            </select>
+            </TextField>
+          </Grid>
 
-            {errors.warehouse && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.warehouse}
-              </p>
-            )}
-          </div>
+          {/* Expected Date */}
 
-          <div>
-            <label className="font-medium">
-              Expected Date
-            </label>
-
-            <input
+          <Grid item xs={12} md={4}>
+            <TextField
+              fullWidth
+              size="small"
               type="date"
               name="expectedDate"
               value={form.expectedDate}
               onChange={handleChange}
-              className={`mt-2 w-full border rounded-xl p-3 ${
-                errors.expectedDate ? "border-red-500" : ""
-              }`}
+              error={!!errors.expectedDate}
+              helperText={errors.expectedDate}
+              InputLabelProps={{
+                shrink: true,
+              }}
             />
+          </Grid>
+        </Grid>
+      </Paper>
 
-            {errors.expectedDate && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.expectedDate}
-              </p>
-            )}
-          </div>
+      {/* Products Section Starts Here */}
 
-        </div>
+      <Paper
+        elevation={0}
+        sx={{
+          p: 3,
+          borderRadius: 3,
+          border: "1px solid #E5E7EB",
+        }}
+      >
+        <Grid
+          container
+          justifyContent="space-between"
+          alignItems="center"
+          mb={2}
+        >
+          <Typography fontWeight={700}>
+            Products
+          </Typography>
 
-        {/* Products */}
-
-        <div>
-
-          <div className="flex justify-between items-center mb-5">
-
-            <h3 className="text-lg font-bold">
-              Products
-            </h3>
-
-            <button
-              type="button"
-              onClick={addProduct}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg flex gap-2 items-center"
+          <Button
+            variant="contained"
+            startIcon={<FaPlus />}
+            onClick={addProduct}
+            sx={{
+              bgcolor: "#2563EB",
+              textTransform: "none",
+              borderRadius: 2,
+              marginLeft:110,
+              marginBottom:2,
+            }}
+          >
+            Add Product
+          </Button>
+        </Grid>
+                {products.map((item, index) => (
+          <Paper
+            key={index}
+            elevation={0}
+            sx={{
+              p: 2,
+              mb: 4,
+              
+              borderRadius: 3,
+              bgcolor: "#F8FAFC",
+              border: "1px solid #E5E7EB",
+            }}
+          >
+            <Grid
+              container
+              spacing={2}
+              alignItems="centre"
+              
             >
-              <FaPlus />
-              Add Product
-            </button>
+              {/* Product */}
 
-          </div>
-
-          <div className="space-y-4">
-
-            {products.map((item, index) => (
-
-              <div
-                key={index}
-                className="grid md:grid-cols-5 gap-4"
-              >
-
-                {/* Product */}
-
-                <select
+              <Grid item xs={12} md={4}>
+                <TextField
+                  select
+                  fullWidth
+                  label="Product"
                   value={item.product}
+                  error={!!errors[`product${index}`]}
+                  helperText={
+                    errors[`product${index}`]
+                  }
                   onChange={(e) =>
                     handleProductChange(
                       index,
@@ -314,32 +392,36 @@ useEffect(() => {
                       e.target.value
                     )
                   }
-                  className={`border rounded-xl p-3 ${
-                    errors[`product${index}`]
-                      ? "border-red-500"
-                      : ""
-                  }`}
                 >
-                  <option value="">
+                  <MenuItem value="">
                     Select Product
-                  </option>
+                  </MenuItem>
 
                   {productList.map((product) => (
-                 <option
-                key={product._id}
-                value={product._id}
-                >
-                {product.name}
-              </option>
-              ))}
-                </select>
+                    <MenuItem
+                      key={product._id}
+                      value={product._id}
+                    >
+                      {product.name}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Grid>
 
-                {/* Quantity */}
+              {/* Quantity */}
 
-                <input
+              <Grid item xs={12} sm={4} md={2} >
+                <TextField
+                  fullWidth
+                  label="Qty"
                   type="number"
-                  placeholder="Qty"
                   value={item.quantity}
+                  error={
+                    !!errors[`quantity${index}`]
+                  }
+                  helperText={
+                    errors[`quantity${index}`]
+                  }
                   onChange={(e) =>
                     handleProductChange(
                       index,
@@ -347,19 +429,27 @@ useEffect(() => {
                       e.target.value
                     )
                   }
-                  className={`border rounded-xl p-3 ${
-                    errors[`quantity${index}`]
-                      ? "border-red-500"
-                      : ""
-                  }`}
                 />
+              </Grid>
 
-                {/* Purchase Price */}
+              {/* Purchase Price */}
 
-                <input
+              <Grid item xs={12} sm={4} md={2}>
+                <TextField
+                  fullWidth
+                  label="Price"
                   type="number"
-                  placeholder="Price"
                   value={item.purchasePrice}
+                  error={
+                    !!errors[
+                      `purchasePrice${index}`
+                    ]
+                  }
+                  helperText={
+                    errors[
+                      `purchasePrice${index}`
+                    ]
+                  }
                   onChange={(e) =>
                     handleProductChange(
                       index,
@@ -367,16 +457,15 @@ useEffect(() => {
                       e.target.value
                     )
                   }
-                  className={`border rounded-xl p-3 ${
-                    errors[`purchasePrice${index}`]
-                      ? "border-red-500"
-                      : ""
-                  }`}
                 />
+              </Grid>
 
-                {/* GST */}
+              {/* GST */}
 
-                <input
+              <Grid item xs={12} sm={4} md={2}>
+                <TextField
+                  fullWidth
+                  label="GST %"
                   type="number"
                   value={item.gst}
                   onChange={(e) =>
@@ -386,85 +475,97 @@ useEffect(() => {
                       e.target.value
                     )
                   }
-                  className="border rounded-xl p-3"
                 />
+              </Grid>
 
-                {/* Delete */}
+              {/* Delete Button */}
 
-                <button
-                  type="button"
-                  onClick={() => removeProduct(index)}
-                  className="bg-red-100 text-red-600 rounded-xl"
+              <Grid
+                item
+                xs={12}
+                md={2}
+                display="flex"
+                justifyContent="center"
+              >
+                <Button
+                  fullWidth
+                  color="error"
+                  variant="outlined"
+                  startIcon={<FaTrash />}
+                  onClick={() =>
+                    removeProduct(index)
+                  }
+                  sx={{
+                    height: 55,
+                    borderRadius: 2,
+                  }}
                 >
-                  <FaTrash className="mx-auto" />
-                </button>
+                  Remove
+                </Button>
+              </Grid>
+            </Grid>
+          </Paper>
+        ))}
+                {/* Notes */}
 
-              </div>
+        <TextField
+          fullWidth
+          size="small"
+          multiline
+          rows={4}
+          label="Notes"
+          name="notes"
+          value={form.notes}
+          onChange={handleChange}
+          sx={{ mt: 2 }}
+        />
+      </Paper>
+    </DialogContent>
 
-            ))}
+    <Divider />
 
-          </div>
+    {/* Footer */}
 
-        </div>
+    <DialogActions
+      sx={{
+        px: 3,
+        py: 2,
+        gap: 2,
+      }}
+    >
+      <Button
+        variant="outlined"
+        onClick={onClose}
+        sx={{
+          borderRadius: 2,
+          textTransform: "none",
+          px: 3,
+        }}
+      >
+        Cancel
+      </Button>
 
-        {/* Invoice */}
+      <Button
+        variant="contained"
+        onClick={handleSubmit}
+        sx={{
+          bgcolor: "#2563EB",
+          borderRadius: 2,
+          px: 4,
+          textTransform: "none",
+          "&:hover": {
+            bgcolor: "#1D4ED8",
+          },
+        }}
+      >
+        {purchase
+          ? "Update Purchase"
+          : "Create Purchase"}
+      </Button>
+    </DialogActions>
+  </Dialog>
+);
 
-        <div>
+};
 
-          <label className="font-medium">
-            Upload Invoice
-          </label>
-
-          <input
-            type="file"
-            className="mt-2 w-full border rounded-xl p-3"
-          />
-
-        </div>
-
-        {/* Notes */}
-
-        <div>
-
-          <label className="font-medium">
-            Notes
-          </label>
-
-          <textarea
-            rows="4"
-            name="notes"
-            value={form.notes}
-            onChange={handleChange}
-            className="mt-2 w-full border rounded-xl p-3"
-          />
-
-        </div>
-
-      </div>
-
-      {/* Footer */}
-
-      <div className="border-t flex justify-end gap-4 px-8 py-5">
-
-        <button
-          type="button"
-          onClick={onClose}
-          className="px-6 py-3 border rounded-xl"
-        >
-          Cancel
-        </button>
-
-        <button
-          type="button"
-          onClick={handleSubmit}
-          className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700"
-        >
-          {purchase ? "Update Purchase Order" : "Create Purchase Order"}
-        </button>
-
-      </div>
-
-    </div>
-  </div>
-)};
 export default CreatePurchaseModal;

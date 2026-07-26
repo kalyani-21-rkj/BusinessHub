@@ -1,11 +1,45 @@
 /* eslint-disable react-hooks/set-state-in-effect */
+
 import { useEffect, useState } from "react";
+
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Grid,
+  TextField,
+  Button,
+  MenuItem,
+  Typography,
+  IconButton,
+  InputAdornment,
+  Divider,
+  Box,
+} from "@mui/material";
+
+import {
+  Close,
+  Person,
+  Email,
+  Phone,
+  Business,
+  LocationOn,
+  Badge,
+} from "@mui/icons-material";
+
 import {
   addCustomer,
   updateCustomer,
 } from "../../services/customerService";
 
-const CustomerModal = ({ open, onClose, onSuccess, customer }) => {
+const CustomerModal = ({
+  open,
+  onClose,
+  onSuccess,
+  customer,
+}) => {
+
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -18,7 +52,9 @@ const CustomerModal = ({ open, onClose, onSuccess, customer }) => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+
     if (customer) {
+
       setFormData({
         fullName: customer.fullName || "",
         email: customer.email || "",
@@ -27,7 +63,9 @@ const CustomerModal = ({ open, onClose, onSuccess, customer }) => {
         address: customer.address || "",
         status: customer.status || "Lead",
       });
+
     } else {
+
       setFormData({
         fullName: "",
         email: "",
@@ -36,136 +74,327 @@ const CustomerModal = ({ open, onClose, onSuccess, customer }) => {
         address: "",
         status: "Lead",
       });
+
     }
+
   }, [customer]);
 
-  if (!open) return null;
-
   const handleChange = (e) => {
+
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
+
   };
 
-  const handleSubmit = async (e) => {
+  if (!open) return null;
+    const handleSubmit = async (e) => {
+
     e.preventDefault();
 
     try {
+
       setLoading(true);
 
       if (customer) {
+
         await updateCustomer(customer._id, formData);
+
         alert("Customer Updated Successfully");
+
       } else {
+
         await addCustomer(formData);
+
         alert("Customer Added Successfully");
+
       }
 
       onSuccess();
+
       onClose();
+
     } catch (err) {
+
       console.error(err);
+
       alert("Operation Failed");
+
     } finally {
+
       setLoading(false);
+
     }
+
   };
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-      <div className="bg-white rounded-2xl w-full max-w-2xl p-8">
 
-        <h2 className="text-2xl font-bold mb-6">
-          {customer ? "Edit Customer" : "Add Customer"}
-        </h2>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      fullWidth
+      maxWidth="md"
+      PaperProps={{
+        sx: {
+          borderRadius: 5,
+          overflow: "hidden",
+        },
+      }}
+    >
 
-        <form
-          onSubmit={handleSubmit}
-          className="grid grid-cols-2 gap-5"
+      {/* Header */}
+
+      <DialogTitle
+        sx={{
+          bgcolor: "#2563EB",
+          color: "#fff",
+          px: 4,
+          py: 3,
+        }}
+      >
+
+        <Box
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
         >
 
-          <input
-            name="fullName"
-            placeholder="Full Name"
-            value={formData.fullName}
-            onChange={handleChange}
-            className="border rounded-lg p-3"
-            required
-          />
+          <Box>
 
-          <input
-            name="email"
-            type="email"
-            placeholder="Email"
-            value={formData.email}
-            onChange={handleChange}
-            className="border rounded-lg p-3"
-            required
-          />
+            <Typography
+              variant="h5"
+              fontWeight={700}
+            >
+              {customer
+                ? "Edit Customer"
+                : "Add Customer"}
+            </Typography>
 
-          <input
-            name="phone"
-            placeholder="Phone"
-            value={formData.phone}
-            onChange={handleChange}
-            className="border rounded-lg p-3"
-            required
-          />
+            <Typography
+              variant="body2"
+              sx={{
+                opacity: .85,
+                mt: .5,
+              }}
+            >
+              Enter customer information
+            </Typography>
 
-          <input
-            name="company"
-            placeholder="Company"
-            value={formData.company}
-            onChange={handleChange}
-            className="border rounded-lg p-3"
-          />
+          </Box>
 
-          <input
-            name="address"
-            placeholder="Address"
-            value={formData.address}
-            onChange={handleChange}
-            className="border rounded-lg p-3 col-span-2"
-          />
-
-          <select
-            name="status"
-            value={formData.status}
-            onChange={handleChange}
-            className="border rounded-lg p-3"
+          <IconButton
+            onClick={onClose}
+            sx={{
+              color: "#fff",
+            }}
           >
-            <option value="Lead">Lead</option>
-            <option value="Customer">Customer</option>
-            <option value="Inactive">Inactive</option>
-          </select>
+            <Close />
+          </IconButton>
 
-          <div className="col-span-2 flex justify-end gap-4 mt-4">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-6 py-3 border rounded-lg"
-            >
-              Cancel
-            </button>
+        </Box>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg"
-            >
-              {loading
-                ? "Saving..."
-                : customer
-                ? "Update Customer"
-                : "Save Customer"}
-            </button>
-          </div>
+      </DialogTitle>
 
-        </form>
-      </div>
-    </div>
+      <form onSubmit={handleSubmit}>
+
+        <DialogContent
+          sx={{
+            p: 4,
+            mt: 2,
+          }}
+        >
+
+          <Grid
+            container
+            spacing={3}
+          >
+
+            <Grid item xs={12} md={6}>
+
+              <TextField
+                fullWidth
+                required
+                label="Full Name"
+                name="fullName"
+                value={formData.fullName}
+                onChange={handleChange}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Person color="primary" />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+
+            </Grid>
+
+            <Grid item xs={12} md={6}>
+
+              <TextField
+                fullWidth
+                required
+                type="email"
+                label="Email Address"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Email color="primary" />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+
+            </Grid>
+
+            <Grid item xs={12} md={6}>
+
+              <TextField
+                fullWidth
+                required
+                label="Phone Number"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Phone color="primary" />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+
+            </Grid>
+
+            <Grid item xs={12} md={6}>
+
+              <TextField
+                fullWidth
+                label="Company Name"
+                name="company"
+                value={formData.company}
+                onChange={handleChange}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Business color="primary" />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+                <Grid item xs={12}>
+              <TextField
+                fullWidth
+                multiline
+                rows={3}
+                label="Address"
+                name="address"
+                value={formData.address}
+                onChange={handleChange}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment
+                      position="start"
+                      sx={{
+                        alignSelf: "flex-start",
+                        mt: 1,
+                      }}
+                    >
+                      <LocationOn color="primary" />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+            </Grid>
+
+            <Grid item xs={12} md={6}>
+              <TextField
+                select
+                fullWidth
+                label="Customer Status"
+                name="status"
+                value={formData.status}
+                onChange={handleChange}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Badge color="primary" />
+                    </InputAdornment>
+                  ),
+                }}
+              >
+                <MenuItem value="Lead">Lead</MenuItem>
+                <MenuItem value="Customer">Customer</MenuItem>
+                <MenuItem value="Inactive">Inactive</MenuItem>
+              </TextField>
+            </Grid>
+
+          </Grid>
+        </Grid>
+
+        </DialogContent>
+
+        <Divider />
+
+        <DialogActions
+          sx={{
+            px: 4,
+            py: 3,
+            justifyContent: "space-between",
+          }}
+        >
+          <Button
+            variant="outlined"
+            color="inherit"
+            onClick={onClose}
+            sx={{
+              borderRadius: 3,
+              px: 4,
+              textTransform: "none",
+              fontWeight: 600,
+            }}
+          >
+            Cancel
+          </Button>
+
+          <Button
+            type="submit"
+            variant="contained"
+            disabled={loading}
+            sx={{
+              background: "#2563EB",
+              borderRadius: 3,
+              px: 5,
+              py: 1.3,
+              textTransform: "none",
+              fontWeight: 700,
+              boxShadow: "0 10px 25px rgba(37,99,235,.25)",
+              "&:hover": {
+                background: "#1D4ED8",
+              },
+            }}
+          >
+            {loading
+              ? "Saving..."
+              : customer
+              ? "Update Customer"
+              : "Save Customer"}
+          </Button>
+
+        </DialogActions>
+
+      </form>
+
+    </Dialog>
   );
 };
 
 export default CustomerModal;
+
+           

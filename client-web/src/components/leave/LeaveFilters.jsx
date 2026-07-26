@@ -1,74 +1,137 @@
-import { FaSearch, FaPlus } from "react-icons/fa";
+import {
+  Paper,
+  TextField,
+  Button,
+  MenuItem,
+  InputAdornment,
+} from "@mui/material";
 
-const LeaveFilters = ({ onApplyLeave }) => {
+import {
+  Search,
+  Add,
+} from "@mui/icons-material";
+
+const LeaveFilters = ({
+  keyword,
+  setKeyword,
+  department,
+  setDepartment,
+  leaveType,
+  setLeaveType,
+  status,
+  setStatus,
+  onApplyLeave,
+}) => {
   return (
-    <div className="bg-none rounded-2xl  p-5">
+    <Paper
+      elevation={0}
+      sx={{
+        p: 2,
+        mb: 1,
+        mt: 1,
+        borderRadius: 4,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        flexWrap: "wrap",
+        gap: 2,
+        boxShadow: "0 8px 24px rgba(37,99,235,.06)",
+      }}
+    >
+      {/* Search */}
 
-      <div className="flex flex-wrap items-center gap-4">
+      <TextField
+        placeholder="Search employee..."
+        size="small"
+        value={keyword}
+        onChange={(e) => setKeyword(e.target.value)}
+        sx={{
+          width: {
+            xs: "100%",
+            sm: 280,
+          },
+        }}
+        InputProps={{
+          startAdornment: (
+            <InputAdornment position="start">
+              <Search />
+            </InputAdornment>
+          ),
+        }}
+      />
 
-        {/* Search */}
+      {/* Department */}
 
-        <div className="relative flex-1 min-w-[280px]">
+      <TextField
+        select
+        size="small"
+        label="Department"
+        value={department}
+        onChange={(e) => setDepartment(e.target.value)}
+        sx={{ minWidth: 170 }}
+      >
+        <MenuItem value="">All Departments</MenuItem>
+        <MenuItem value="HR">HR</MenuItem>
+        <MenuItem value="Sales">Sales</MenuItem>
+        <MenuItem value="Finance">Finance</MenuItem>
+        <MenuItem value="Inventory">Inventory</MenuItem>
+        <MenuItem value="IT">IT</MenuItem>
+      </TextField>
 
-          <FaSearch className="absolute left-70 top-1/2 -translate-y-1/2 text-slate-400" />
+      {/* Leave Type */}
 
-          <input
-            type="text"
-            placeholder="Search Employee..."
-            className=" w-full sm:w-80 h-8 pl-4 pr-4 rounded-xl  bg-white placeholder-slate-400 text-slate-700 outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all shadow-sm"
-          />
+      <TextField
+        select
+        size="small"
+        label="Leave Type"
+        value={leaveType}
+        onChange={(e) => setLeaveType(e.target.value)}
+        sx={{ minWidth: 170 }}
+      >
+        <MenuItem value="">All Leave Types</MenuItem>
+        <MenuItem value="Casual Leave">Casual Leave</MenuItem>
+        <MenuItem value="Sick Leave">Sick Leave</MenuItem>
+        <MenuItem value="Paid Leave">Paid Leave</MenuItem>
+        <MenuItem value="Maternity Leave">Maternity Leave</MenuItem>
+      </TextField>
 
-        </div>
+      {/* Status */}
 
-        {/* Department */}
+      <TextField
+        select
+        size="small"
+        label="Status"
+        value={status}
+        onChange={(e) => setStatus(e.target.value)}
+        sx={{ minWidth: 170 }}
+      >
+        <MenuItem value="">All Status</MenuItem>
+        <MenuItem value="Pending">Pending</MenuItem>
+        <MenuItem value="Approved">Approved</MenuItem>
+        <MenuItem value="Rejected">Rejected</MenuItem>
+      </TextField>
 
-        <select className="h-8 min-w-[180px] rounded-xl border border-slate-300 px-4 bg-white">
+      {/* Button */}
 
-          <option>All Departments</option>
-          <option>HR</option>
-          <option>Sales</option>
-          <option>Finance</option>
-          <option>Inventory</option>
-          <option>IT</option>
-
-        </select>
-
-        {/* Leave Type */}
-
-        <select className="h-8 min-w-[180px] rounded-xl border border-slate-300 px-4 bg-white">
-
-          <option>All Leave Types</option>
-          <option>Casual Leave</option>
-          <option>Sick Leave</option>
-          <option>Paid Leave</option>
-          <option>Maternity Leave</option>
-
-        </select>
-
-        {/* Status */}
-
-        <select className="h-8 min-w-[160px] rounded-xl border border-slate-300 px-4 bg-white">
-
-          <option>All Status</option>
-          <option>Pending</option>
-          <option>Approved</option>
-          <option>Rejected</option>
-
-        </select>
-
-        {/* Button */}
-
-        <button
-          onClick={onApplyLeave}
-          className="h-8 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold flex items-center gap-2 transition"
-        >
-          <FaPlus />
-          Apply Leave
-        </button>
-
-      </div>
-
-    </div>
+      <Button
+        variant="contained"
+        startIcon={<Add />}
+        onClick={onApplyLeave}
+        sx={{
+          bgcolor: "#2563EB",
+          borderRadius: 3,
+          px: 3,
+          py: 1.2,
+          textTransform: "none",
+          fontWeight: 600,
+          "&:hover": {
+            bgcolor: "#1D4ED8",
+          },
+        }}
+      >
+        Apply Leave
+      </Button>
+    </Paper>
   );
 };
 

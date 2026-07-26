@@ -1,9 +1,29 @@
-/* eslint-disable react-hooks/set-state-in-effect */import { useState, useEffect } from "react";
+/* eslint-disable react-hooks/set-state-in-effect */
+
+import { useState, useEffect } from "react";
+
 import {
-  FaTimes,
-  FaPlus,
-  FaTrash,
-} from "react-icons/fa";
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Grid,
+  TextField,
+  MenuItem,
+  Button,
+  Typography,
+  Paper,
+  Divider,
+  IconButton,
+  Box,
+  Stack,
+} from "@mui/material";
+
+import {
+  Close,
+  Delete,
+  Add,
+} from "@mui/icons-material";
 
 import { getProducts } from "../../services/productService";
 
@@ -15,6 +35,8 @@ const CreateInvoiceModal = ({
 
   const [productList, setProductList] = useState([]);
 
+  const [errors, setErrors] = useState({});
+
   const [form, setForm] = useState({
     customerName: invoice?.customerName || "",
     customerPhone: invoice?.customerPhone || "",
@@ -23,16 +45,19 @@ const CreateInvoiceModal = ({
     gst: invoice?.gst || 0,
     paymentMethod:
       invoice?.paymentMethod || "Cash",
-    status: invoice?.status || "Paid",
+    status:
+      invoice?.status || "Paid",
   });
 
   const [products, setProducts] = useState(
     invoice?.products?.length
       ? invoice.products.map((item) => ({
           product:
-            item.product?._id || item.product,
+            item.product?._id ||
+            item.product,
           quantity: item.quantity,
-          sellingPrice: item.sellingPrice,
+          sellingPrice:
+            item.sellingPrice,
         }))
       : [
           {
@@ -43,31 +68,49 @@ const CreateInvoiceModal = ({
         ]
   );
 
-  // eslint-disable-next-line no-unused-vars
-  const [errors, setErrors] = useState({});
-
-  const fetchProducts = async () => {
-    try {
-      const res = await getProducts();
-
-      setProductList(
-        res.data.products || []
-      );
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
   useEffect(() => {
+
+    let isMounted = true;
+
+    const fetchProducts = async () => {
+
+      try {
+
+        const res =
+          await getProducts();
+
+        if (isMounted) {
+          setProductList(
+            res.data?.products || []
+          );
+        }
+
+      } catch (err) {
+
+        console.log(err);
+
+      }
+
+    };
+
     fetchProducts();
+
+    return () => {
+      isMounted = false;
+    };
+
   }, []);
 
   const handleChange = (e) => {
+
+    const { name, value } =
+      e.target;
+
     setForm((prev) => ({
       ...prev,
-      [e.target.name]:
-        e.target.value,
+      [name]: value,
     }));
+
   };
 
   const handleProductChange = (
@@ -75,11 +118,16 @@ const CreateInvoiceModal = ({
     field,
     value
   ) => {
+
     const temp = [...products];
 
-    temp[index][field] = value;
+    temp[index] = {
+      ...temp[index],
+      [field]: value,
+    };
 
     if (field === "product") {
+
       const selected =
         productList.find(
           (p) => p._id === value
@@ -89,12 +137,15 @@ const CreateInvoiceModal = ({
         temp[index].sellingPrice =
           selected.sellingPrice;
       }
+
     }
 
     setProducts(temp);
+
   };
 
   const addProduct = () => {
+
     setProducts([
       ...products,
       {
@@ -103,343 +154,728 @@ const CreateInvoiceModal = ({
         sellingPrice: 0,
       },
     ]);
+
   };
 
-  const removeProduct = (index) => {
-    if (products.length === 1) return;
+  const removeProduct = (
+    index
+  ) => {
+
+    if (products.length === 1)
+      return;
 
     setProducts(
       products.filter(
         (_, i) => i !== index
       )
     );
+
   };
 
-const subTotal = products.reduce((sum, item) => {
-  return (
-    sum +
-    Number(item.quantity || 0) *
-      Number(item.sellingPrice || 0)
+  const subTotal =
+    products.reduce(
+      (sum, item) =>
+        sum +
+        Number(
+          item.quantity || 0
+        ) *
+          Number(
+            item.sellingPrice || 0
+          ),
+      0
+    );
+
+  const discount = Number(
+    form.discount || 0
   );
-}, 0);
 
-const discount = Number(form.discount || 0);
+  const gst = Number(
+    form.gst || 0
+  );
 
-const gst = Number(form.gst || 0);
+  const totalAmount =
+    subTotal - discount + gst;
 
-const totalAmount =
-  subTotal - discount + gst;
+  const validate = () => {
 
-const validate = () => {
-
-  const temp = {};
-
-  if (!form.customerName.trim()) {
-    temp.customerName =
-      "Customer Name is required";
-  }
-
-  if (products.length === 0) {
-    temp.products =
-      "Select at least one product";
-  }
-
-  products.forEach((item, index) => {
-
-    if (!item.product) {
-      temp[`product${index}`] =
-        "Select Product";
-    }
+    const temp = {};
 
     if (
-      !item.quantity ||
-      item.quantity <= 0
+      !form.customerName.trim()
     ) {
-      temp[`quantity${index}`] =
-        "Invalid Quantity";
+
+      temp.customerName =
+        "Customer Name is required";
+
     }
 
-  });
+    if (products.length === 0) {
 
-  setErrors(temp);
+      temp.products =
+        "Select at least one product";
 
-  return Object.keys(temp).length === 0;
-};
+    }
 
-const handleSubmit = () => {
+    products.forEach(
+      (item, index) => {
 
-  if (!validate()) return;
+        if (!item.product) {
 
-  onSave({
+          temp[
+            `product${index}`
+          ] =
+            "Select Product";
 
-    customerName: form.customerName,
+        }
 
-    customerPhone:
-      form.customerPhone,
+        if (
+          !item.quantity ||
+          item.quantity <= 0
+        ) {
 
-    customerEmail:
-      form.customerEmail,
+          temp[
+            `quantity${index}`
+          ] =
+            "Invalid Quantity";
 
-    products: products.map((item) => ({
-      product: item.product,
-      quantity: Number(item.quantity),
-      sellingPrice: Number(
-        item.sellingPrice
-      ),
-    })),
+        }
 
-    discount,
+      }
+    );
 
-    gst,
+    setErrors(temp);
 
-    paymentMethod:
-      form.paymentMethod,
+    return (
+      Object.keys(temp)
+        .length === 0
+    );
 
-    status: form.status,
+  };
 
-    subTotal,
+  const handleSubmit = () => {
 
-    totalAmount,
+    if (!validate()) return;
 
-  });
+    onSave({
 
-};
-return (
-  <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-6">
+      customerName:
+        form.customerName,
 
-    <div className="bg-white rounded-2xl w-full max-w-5xl shadow-2xl">
+      customerPhone:
+        form.customerPhone,
 
-      {/* Header */}
-      <div className="flex justify-between items-center border-b p-6">
+      customerEmail:
+        form.customerEmail,
 
-        <h2 className="text-2xl font-bold">
-          {invoice ? "Update Invoice" : "Create Invoice"}
-        </h2>
+      products:
+        products.map(
+          (item) => ({
+            product:
+              item.product,
+            quantity: Number(
+              item.quantity
+            ),
+            sellingPrice:
+              Number(
+                item.sellingPrice
+              ),
+          })
+        ),
 
-        <button
+      discount,
+
+      gst,
+
+      paymentMethod:
+        form.paymentMethod,
+
+      status:
+        form.status,
+
+      subTotal,
+
+      totalAmount,
+
+    });
+
+  };
+    return (
+    <Dialog
+      open
+      onClose={onClose}
+      fullWidth
+      maxWidth="lg"
+      PaperProps={{
+        sx: {
+          borderRadius: 4,
+          overflow: "hidden",
+        },
+      }}
+    >
+      {/* ================= HEADER ================= */}
+
+      <DialogTitle
+        sx={{
+          bgcolor: "#2563EB",
+          color: "#fff",
+          px: 4,
+          py: 2.5,
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <Box>
+
+          <Typography
+            variant="h5"
+            fontWeight={700}
+            color="white"
+          >
+            {invoice
+              ? "Update Invoice"
+              : "Create Invoice"}
+          </Typography>
+
+          <Typography
+            variant="body2"
+            sx={{
+              color: "rgba(255,255,255,0.85)",
+              mt: 0.5,
+            }}
+          >
+            Customer billing information
+          </Typography>
+
+        </Box>
+
+        <IconButton
           onClick={onClose}
-          className="p-2 hover:bg-slate-100 rounded-lg"
+          sx={{ color: "#fff" }}
         >
-          <FaTimes />
-        </button>
+          <Close />
+        </IconButton>
 
-      </div>
+      </DialogTitle>
 
-      {/* Body */}
-      <div className="p-6 space-y-6">
+      <Divider />
 
-        <div className="grid md:grid-cols-3 gap-4">
+      {/* ================= BODY ================= */}
 
-          <input
-            type="text"
-            name="customerName"
-            placeholder="Customer Name"
-            value={form.customerName}
-            onChange={handleChange}
-            className="border rounded-xl px-4 py-3"
-          />
+      <DialogContent sx={{ p: 4 }}>
 
-          <input
-            type="text"
-            name="customerPhone"
-            placeholder="Customer Phone"
-            value={form.customerPhone}
-            onChange={handleChange}
-            className="border rounded-xl px-4 py-3"
-          />
+        {/* Customer Details */}
 
-          <input
-            type="email"
-            name="customerEmail"
-            placeholder="Customer Email"
-            value={form.customerEmail}
-            onChange={handleChange}
-            className="border rounded-xl px-4 py-3"
-          />
-
-        </div>
-
-        {products.map((item, index) => (
-
-          <div
-            key={index}
-            className="grid grid-cols-12 gap-3 items-center"
-          >
-
-            <select
-              value={item.product}
-              onChange={(e) =>
-                handleProductChange(
-                  index,
-                  "product",
-                  e.target.value
-                )
-              }
-              className="col-span-5 border rounded-xl px-3 py-3"
-            >
-
-              <option value="">
-                Select Product
-              </option>
-
-              {productList.map((product) => (
-
-                <option
-                  key={product._id}
-                  value={product._id}
-                >
-                  {product.name}
-                </option>
-
-              ))}
-
-            </select>
-
-            <input
-              type="number"
-              placeholder="Qty"
-              value={item.quantity}
-              onChange={(e) =>
-                handleProductChange(
-                  index,
-                  "quantity",
-                  e.target.value
-                )
-              }
-              className="col-span-2 border rounded-xl px-3 py-3"
-            />
-
-            <input
-              type="number"
-              placeholder="Price"
-              value={item.sellingPrice}
-              onChange={(e) =>
-                handleProductChange(
-                  index,
-                  "sellingPrice",
-                  e.target.value
-                )
-              }
-              className="col-span-3 border rounded-xl px-3 py-3"
-            />
-
-            <button
-              type="button"
-              onClick={() =>
-                removeProduct(index)
-              }
-              className="col-span-2 text-red-600 hover:text-red-700"
-            >
-              <FaTrash />
-            </button>
-
-          </div>
-
-        ))}
-
-        <button
-          type="button"
-          onClick={addProduct}
-          className="flex items-center gap-2 bg-blue-100 text-blue-700 px-4 py-2 rounded-xl"
+        <Paper
+          elevation={0}
+          sx={{
+            p: 3,
+            mb: 4,
+            borderRadius: 3,
+            border: "1px solid #E5E7EB",
+          }}
         >
-          <FaPlus />
-          Add Product
-        </button>
 
-        {/* Discount / GST */}
-
-        <div className="grid md:grid-cols-2 gap-4">
-
-          <input
-            type="number"
-            name="discount"
-            placeholder="Discount"
-            value={form.discount}
-            onChange={handleChange}
-            className="border rounded-xl px-4 py-3"
-          />
-
-          <input
-            type="number"
-            name="gst"
-            placeholder="GST"
-            value={form.gst}
-            onChange={handleChange}
-            className="border rounded-xl px-4 py-3"
-          />
-
-        </div>
-
-        {/* Payment */}
-
-        <div className="grid md:grid-cols-2 gap-4">
-
-          <select
-            name="paymentMethod"
-            value={form.paymentMethod}
-            onChange={handleChange}
-            className="border rounded-xl px-4 py-3"
+          <Typography
+            variant="h6"
+            fontWeight={700}
+            mb={3}
           >
-            <option>Cash</option>
-            <option>UPI</option>
-            <option>Card</option>
-            <option>Bank Transfer</option>
-          </select>
+            Customer Details
+          </Typography>
 
-          <select
-            name="status"
-            value={form.status}
-            onChange={handleChange}
-            className="border rounded-xl px-4 py-3"
+          <Grid container spacing={3}>
+
+            <Grid item xs={12} md={4}>
+
+              <TextField
+                fullWidth
+                size="small"
+                label="Customer Name"
+                name="customerName"
+                value={form.customerName}
+                onChange={handleChange}
+                error={!!errors.customerName}
+                helperText={errors.customerName}
+              />
+
+            </Grid>
+
+            <Grid item xs={12} md={4}>
+
+              <TextField
+                fullWidth
+                size="small"
+                label="Phone Number"
+                name="customerPhone"
+                value={form.customerPhone}
+                onChange={handleChange}
+              />
+
+            </Grid>
+
+            <Grid item xs={12} md={4}>
+
+              <TextField
+                fullWidth
+                size="small"
+                label="Email Address"
+                name="customerEmail"
+                value={form.customerEmail}
+                onChange={handleChange}
+              />
+
+            </Grid>
+
+          </Grid>
+
+        </Paper>
+                {/* ================= Products ================= */}
+
+        <Paper
+          elevation={0}
+          sx={{
+            p: 3,
+            mb: 4,
+
+            borderRadius: 3,
+            border: "1px solid #E5E7EB",
+          }}
+        >
+          <Stack
+            direction={{
+              xs: "column",
+              sm: "row",
+            }}
+            justifyContent="space-between"
+            
+            alignItems={{
+              xs: "flex-start",
+              sm: "center",
+              
+            }}
+            spacing={2}
+            mb={3}
           >
-            <option>Paid</option>
-            <option>Pending</option>
-          </select>
+            <Box mb={3}>
+  <Typography variant="h6" fontWeight={700}>
+    Products
+  </Typography>
 
-        </div>
+  <Typography variant="body2" color="text.secondary">
+    Select products for this invoice
+  </Typography>
+</Box>
 
-        {/* Total */}
+<Box
+  display="flex"
+  justifyContent="flex-end"
+  mb={3}
+>
+  <Button
+    variant="contained"
+    startIcon={<Add />}
+    onClick={addProduct}
+    sx={{
+      minWidth: 180,
+      height: 45,
+      borderRadius: 1,
+      textTransform: "none",
+      fontWeight: 600,
+      bgcolor: "#2563EB",
+      marginLeft:90,
+      "&:hover": {
+        bgcolor: "#1D4ED8",
+      },
+    }}
+  >
+    Add Product
+  </Button>
+</Box>
+          </Stack>
 
-        <div className="bg-slate-50 rounded-xl p-5 text-right">
+          {products.map((item, index) => (
+            <Paper
+              key={index}
+              elevation={0}
+              sx={{
+                p: 2,
+                mb: 2,
+                bgcolor: "#F8FAFC",
+                border: "1px solid #E5E7EB",
+                borderRadius: 2,
+              }}
+            >
+              <Grid
+                container
+                spacing={2}
+                alignItems="center"
+              >
+                {/* Product */}
 
-          <p>Subtotal : ₹{subTotal}</p>
+                <Grid item xs={12} md={5}>
+                  <TextField
+                    select
+                    fullWidth
+                    size="small"
+                    label="Product"
+                    value={item.product}
+                    onChange={(e) =>
+                      handleProductChange(
+                        index,
+                        "product",
+                        e.target.value
+                      )
+                    }
+                    error={
+                      !!errors[
+                        `product${index}`
+                      ]
+                    }
+                    helperText={
+                      errors[
+                        `product${index}`
+                      ]
+                    }
+                  >
+                    <MenuItem value="">
+                      Select Product
+                    </MenuItem>
 
-          <p>Discount : ₹{discount}</p>
+                    {productList.map(
+                      (product) => (
+                        <MenuItem
+                          key={
+                            product._id
+                          }
+                          value={
+                            product._id
+                          }
+                        >
+                          {product.name}
+                        </MenuItem>
+                      )
+                    )}
+                  </TextField>
+                </Grid>
 
-          <p>GST : ₹{gst}</p>
+                {/* Quantity */}
 
-          <h2 className="text-2xl font-bold mt-3">
-            Total : ₹{totalAmount}
-          </h2>
+                <Grid item xs={12} sm={4} md={2}>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    type="number"
+                    label="Quantity"
+                    value={item.quantity}
+                    onChange={(e) =>
+                      handleProductChange(
+                        index,
+                        "quantity",
+                        e.target.value
+                      )
+                    }
+                    error={
+                      !!errors[
+                        `quantity${index}`
+                      ]
+                    }
+                    helperText={
+                      errors[
+                        `quantity${index}`
+                      ]
+                    }
+                  />
+                </Grid>
 
-        </div>
+                {/* Price */}
 
-      </div>
+                <Grid item xs={12} sm={5} md={3}>
+                  <TextField
+                    fullWidth
+                    size="small"
+                    type="number"
+                    label="Selling Price"
+                    value={
+                      item.sellingPrice
+                    }
+                    onChange={(e) =>
+                      handleProductChange(
+                        index,
+                        "sellingPrice",
+                        e.target.value
+                      )
+                    }
+                  />
+                </Grid>
 
-      {/* Footer */}
+                {/* Delete */}
 
-      <div className="border-t p-6 flex justify-end gap-4">
+                <Grid item xs={12} md={2}>
+                  <Button
+                    fullWidth
+                    variant="outlined"
+                    color="error"
+                    startIcon={<Delete />}
+                    onClick={() =>
+                      removeProduct(index)
+                    }
+                    disabled={
+                      products.length === 1
+                    }
+                    sx={{
+                      textTransform:
+                        "none",
+                      borderRadius: 1,
+                      height: 40,
+                    }}
+                  >
+                    Remove
+                  </Button>
+                </Grid>
+              </Grid>
+            </Paper>
+          ))}
+        </Paper>
 
-        <button
+        {/* ================= Billing Details ================= */}
+
+        <Paper
+          elevation={0}
+          sx={{
+            p: 3,
+            mb: 4,
+            borderRadius: 3,
+            border: "1px solid #E5E7EB",
+          }}
+        >
+          <Typography
+            variant="h6"
+            fontWeight={700}
+            mb={3}
+          >
+            Billing Details
+          </Typography>
+
+          <Grid container spacing={3}>
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                size="small"
+                type="number"
+                label="Discount (₹)"
+                name="discount"
+                value={form.discount}
+                onChange={handleChange}
+              />
+            </Grid>
+
+            <Grid item xs={12} md={6}>
+              <TextField
+                fullWidth
+                size="small"
+                type="number"
+                label="GST (₹)"
+                name="gst"
+                value={form.gst}
+                onChange={handleChange}
+              />
+            </Grid>
+
+            <Grid item xs={12} md={6}>
+              <TextField
+                select
+                fullWidth
+                size="small"
+                label="Payment Method"
+                name="paymentMethod"
+                value={
+                  form.paymentMethod
+                }
+                onChange={handleChange}
+              >
+                <MenuItem value="Cash">
+                  Cash
+                </MenuItem>
+
+                <MenuItem value="UPI">
+                  UPI
+                </MenuItem>
+
+                <MenuItem value="Card">
+                  Card
+                </MenuItem>
+
+                <MenuItem value="Bank Transfer">
+                  Bank Transfer
+                </MenuItem>
+              </TextField>
+            </Grid>
+
+            <Grid item xs={12} md={6}>
+              <TextField
+                select
+                fullWidth
+                size="small"
+                label="Payment Status"
+                name="status"
+                value={form.status}
+                onChange={handleChange}
+              >
+                <MenuItem value="Paid">
+                  Paid
+                </MenuItem>
+
+                <MenuItem value="Pending">
+                  Pending
+                </MenuItem>
+              </TextField>
+            </Grid>
+          </Grid>
+        </Paper>
+                {/* ================= Invoice Summary ================= */}
+
+        <Paper
+          elevation={0}
+          sx={{
+            p: 3,
+            borderRadius: 3,
+            border: "1px solid #E5E7EB",
+            bgcolor: "#F8FAFC",
+          }}
+        >
+          <Typography
+            variant="h6"
+            fontWeight={700}
+            mb={3}
+          >
+            Invoice Summary
+          </Typography>
+
+          <Stack spacing={2}>
+
+            <Box
+              display="flex"
+              justifyContent="space-between"
+            >
+              <Typography color="text.secondary">
+                Subtotal
+              </Typography>
+
+              <Typography fontWeight={600}>
+                ₹{subTotal.toLocaleString()}
+              </Typography>
+            </Box>
+
+            <Box
+              display="flex"
+              justifyContent="space-between"
+            >
+              <Typography color="text.secondary">
+                Discount
+              </Typography>
+
+              <Typography
+                fontWeight={600}
+                color="error.main"
+              >
+                - ₹{discount.toLocaleString()}
+              </Typography>
+            </Box>
+
+            <Box
+              display="flex"
+              justifyContent="space-between"
+            >
+              <Typography color="text.secondary">
+                GST
+              </Typography>
+
+              <Typography
+                fontWeight={600}
+                color="success.main"
+              >
+                + ₹{gst.toLocaleString()}
+              </Typography>
+            </Box>
+
+            <Divider />
+
+            <Box
+              display="flex"
+              justifyContent="space-between"
+              alignItems="center"
+            >
+              <Typography
+                variant="h6"
+                fontWeight={700}
+              >
+                Total Amount
+              </Typography>
+
+              <Typography
+                variant="h5"
+                fontWeight={700}
+                color="primary"
+              >
+                ₹{totalAmount.toLocaleString()}
+              </Typography>
+            </Box>
+
+          </Stack>
+        </Paper>
+
+      </DialogContent>
+
+      {/* ================= Footer ================= */}
+
+      <DialogActions
+        sx={{
+          px: 4,
+          py: 3,
+          borderTop: "1px solid #E5E7EB",
+          justifyContent: "flex-end",
+          gap: 2,
+          flexWrap: "wrap",
+        }}
+      >
+        <Button
+          variant="outlined"
           onClick={onClose}
-          className="px-6 py-3 rounded-xl border"
+          sx={{
+            minWidth: 130,
+            height: 44,
+            borderRadius: 1,
+            textTransform: "none",
+            fontWeight: 600,
+          }}
         >
           Cancel
-        </button>
+        </Button>
 
-        <button
+        <Button
+          variant="contained"
           onClick={handleSubmit}
-          className="px-6 py-3 rounded-xl bg-blue-600 text-white hover:bg-blue-700"
+          sx={{
+            minWidth: 170,
+            height: 44,
+            borderRadius: 1,
+            textTransform: "none",
+            fontWeight: 600,
+            bgcolor: "#2563EB",
+            "&:hover": {
+              bgcolor: "#1D4ED8",
+            },
+          }}
         >
-          {invoice ? "Update Invoice" : "Create Invoice"}
-        </button>
+          {invoice
+            ? "Update Invoice"
+            : "Create Invoice"}
+        </Button>
+      </DialogActions>
 
-      </div>
-
-    </div>
-
-  </div>
-);
+    </Dialog>
+  );
 };
 
 export default CreateInvoiceModal;

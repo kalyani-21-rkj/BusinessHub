@@ -2,11 +2,25 @@
 import { useEffect, useState } from "react";
 
 import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  MenuItem,
+  Grid,
+  Button,
+  Typography,
+  Divider,
+} from "@mui/material";
+import {
   markAttendance,
   updateAttendance,
 } from "../../services/attendanceService";
 
 import { getEmployees } from "../../services/employeeService";
+
+
 
 const AttendanceModal = ({
   open,
@@ -112,155 +126,236 @@ const AttendanceModal = ({
     }
   };
     return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+  <Dialog
+  open={open}
+  onClose={onClose}
+  maxWidth="md"
+  fullWidth
+  slotProps={{
+    paper: {
+      sx: {
+        borderRadius: 4,
+        
+      },
+    },
+  }}
+>
+    <DialogTitle
+      sx={{
+        fontSize: 28,
+        fontWeight: 700,
+        pb: 1,
+        bgcolor: "#2563EB",
+    color: "#fff",
+      }}
+    >
+      {attendance ? "Edit Attendance" : "Mark Attendance"}
 
-      <div className="bg-white rounded-2xl w-full max-w-2xl p-8">
+      <Typography
+        variant="body2"
+        color="text.secondary"
+        sx={{ mt: 0.5 }}
+      >
+        Fill attendance details
+      </Typography>
+    </DialogTitle>
 
-        <h2 className="text-2xl font-bold mb-6">
-          {attendance ? "Update Attendance" : "Mark Attendance"}
-        </h2>
+    <Divider />
 
-        <form
-          onSubmit={handleSubmit}
-          className="grid grid-cols-2 gap-5"
-        >
+    <DialogContent sx={{ mt: 3 }}>
+
+      <form onSubmit={handleSubmit}>
+
+        <Grid container spacing={3}>
 
           {/* Employee */}
 
-          <select
-            name="employee"
-            value={formData.employee}
-            onChange={handleChange}
-            className="border rounded-lg p-3"
-            required
-          >
+          <Grid item xs={12} md={6}>
+            <TextField
+              select
+              fullWidth
+              label="Employee"
+              name="employee"
+              value={formData.employee}
+              onChange={handleChange}
+              required
+            >
+              <MenuItem value="">
+                Select Employee
+              </MenuItem>
 
-            <option value="">
-              Select Employee
-            </option>
-
-            {employees.map((emp) => (
-
-              <option
-                key={emp._id}
-                value={emp._id}
-              >
-
-                {emp.fullName}
-
-              </option>
-
-            ))}
-
-          </select>
+              {employees.map((emp) => (
+                <MenuItem
+                  key={emp._id}
+                  value={emp._id}
+                >
+                  {emp.fullName}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Grid>
 
           {/* Date */}
 
-          <input
-            type="date"
-            name="date"
-            value={formData.date}
-            onChange={handleChange}
-            className="border rounded-lg p-3"
-            required
-          />
+          <Grid item xs={12} md={6}>
+            <TextField
+              size="small"
+              label="Attendance Date"
+              type="date"
+              name="date"
+              value={formData.date}
+              onChange={handleChange}
+              InputLabelProps={{
+                shrink: true,
+              }}
+            />
+          </Grid>
 
           {/* Check In */}
 
-          <input
-            type="time"
-            name="checkIn"
+          <Grid item xs={12} md={6}>
+            <TextField
+              fullWidth
+              size="small"
+              label="Check In"
+              type="time"
+              name="checkIn"
             value={formData.checkIn}
             onChange={handleChange}
-            className="border rounded-lg p-3"
-          />
+            slotProps={{
+            inputLabel: {
+            shrink: true,
+          },
+      }}
+      sx={{
+        "& .MuiOutlinedInput-root": {
+          borderRadius: "12px",
+        bgcolor: "#fff",
+    },
+  }}
+/>
+          </Grid>
 
           {/* Check Out */}
 
-          <input
-            type="time"
-            name="checkOut"
-            value={formData.checkOut}
-            onChange={handleChange}
-            className="border rounded-lg p-3"
-          />
+          <Grid item xs={12} md={6}>
+            <TextField
+                fullWidth
+                size="small"
+                label="Check Out"
+                type="time"
+                name="checkOut"
+               value={formData.checkOut}
+              onChange={handleChange}
+              slotProps={{
+            inputLabel: {
+              shrink: true,
+            },
+       }}
+      sx={{
+          "& .MuiOutlinedInput-root": {
+          borderRadius: "12px",
+          bgcolor: "#fff",
+        },
+      }}
+    />
+          </Grid>
 
           {/* Status */}
 
-          <select
-            name="status"
-            value={formData.status}
-            onChange={handleChange}
-            className="border rounded-lg p-3"
-          >
+          <Grid item xs={12} md={6}>
+            <TextField
+              select
+              fullWidth
+              label="Status"
+              name="status"
+              value={formData.status}
+              onChange={handleChange}
+            >
+              <MenuItem value="Present">
+                Present
+              </MenuItem>
 
-            <option value="Present">
-              Present
-            </option>
+              <MenuItem value="Absent">
+                Absent
+              </MenuItem>
 
-            <option value="Absent">
-              Absent
-            </option>
+              <MenuItem value="Half Day">
+                Half Day
+              </MenuItem>
 
-            <option value="Half Day">
-              Half Day
-            </option>
+              <MenuItem value="Leave">
+                Leave
+              </MenuItem>
+            </TextField>
+          </Grid>
 
-            <option value="Leave">
-              Leave
-            </option>
+          {/* Empty space */}
 
-          </select>
-
-          <div></div>
+          <Grid item xs={12} md={6}></Grid>
 
           {/* Remarks */}
 
-          <textarea
-            name="remarks"
-            value={formData.remarks}
-            onChange={handleChange}
-            placeholder="Remarks"
-            rows="4"
-            className="border rounded-lg p-3 col-span-2"
-          />
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              multiline
+              rows={4}
+              label="Remarks"
+              name="remarks"
+              value={formData.remarks}
+              onChange={handleChange}
+            />
+          </Grid>
 
-          {/* Buttons */}
+        </Grid>
 
-          <div className="col-span-2 flex justify-end gap-4">
+      </form>
 
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-6 py-3 rounded-lg border"
-            >
+    </DialogContent>
 
-              Cancel
+    <DialogActions
+      sx={{
+        px: 3,
+        pb: 3,
+        gap: 2,
+      }}
+    >
+      <Button
+        variant="outlined"
+        onClick={onClose}
+        sx={{
+          borderRadius: 2,
+          textTransform: "none",
+          px: 3,
+        }}
+      >
+        Cancel
+      </Button>
 
-            </button>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="px-6 py-3 rounded-lg bg-blue-600 text-white"
-            >
-
-              {loading
-                ? "Saving..."
-                : attendance
-                ? "Update Attendance"
-                : "Save Attendance"}
-
-            </button>
-
-          </div>
-
-        </form>
-
-      </div>
-
-    </div>
-  );
+      <Button
+        variant="contained"
+        onClick={handleSubmit}
+        disabled={loading}
+        sx={{
+          borderRadius: 2,
+          textTransform: "none",
+          px: 3,
+          bgcolor: "#2563EB",
+          "&:hover": {
+            bgcolor: "#1D4ED8",
+          },
+        }}
+      >
+        {loading
+          ? "Saving..."
+          : attendance
+          ? "Update Attendance"
+          : "Save Attendance"}
+      </Button>
+    </DialogActions>
+  </Dialog>
+);
 };
 
 export default AttendanceModal;

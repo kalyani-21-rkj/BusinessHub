@@ -1,169 +1,254 @@
 /* eslint-disable react-hooks/set-state-in-effect */
+
 import { useEffect, useState } from "react";
+
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Grid,
+  Button,
+  Typography,
+  Divider,
+} from "@mui/material";
 
 const AddStockModal = ({
   open,
   onClose,
-  inventory,
   onSave,
+  product,
 }) => {
-  const [productId, setProductId] = useState("");
-  const [quantity, setQuantity] = useState("");
-  const [supplier, setSupplier] = useState("");
-  const [purchasePrice, setPurchasePrice] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const [formData, setFormData] = useState({
+    quantity: "",
+  });
 
   useEffect(() => {
-    if (!open) {
-      setProductId("");
-      setQuantity("");
-      setSupplier("");
-      setPurchasePrice("");
-    }
+    if (!open) return;
+
+    setFormData({
+      quantity: "",
+    });
   }, [open]);
 
   if (!open) return null;
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    onSave({
-      productId,
-      quantity: Number(quantity),
-      supplier,
-      purchasePrice: Number(purchasePrice),
-    });
+  const handleChange = (e) => {
+    setFormData((prev) => ({
+      ...prev,
+      quantity: e.target.value,
+    }));
   };
 
+  const handleSubmit = async (e) => {
+    if (e) e.preventDefault();
+
+    if (!formData.quantity || Number(formData.quantity) <= 0) {
+      alert("Please enter valid quantity");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      await onSave({
+        quantity: Number(formData.quantity),
+      });
+
+      setFormData({
+        quantity: "",
+      });
+    } catch (err) {
+      console.log(err);
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+  <Dialog
+    open={open}
+    onClose={onClose}
+    maxWidth="sm"
+    fullWidth
+    slotProps={{
+      paper: {
+        sx: {
+          borderRadius: 4,
+        },
+      },
+    }}
+  >
+    {/* Header */}
 
-      <div className="bg-white w-full max-w-lg rounded-2xl shadow-xl p-6">
+    <DialogTitle
+      sx={{
+        bgcolor: "#2563EB",
+        color: "#fff",
+        fontSize: 28,
+        fontWeight: 700,
+        pb: 1,
+      }}
+    >
+      Add Stock
 
-        <div className="flex justify-between items-center mb-6">
+      <Typography
+        sx={{
+          mt: 0.5,
+          color: "#DBEAFE",
+          fontSize: 14,
+        }}
+      >
+        Update product inventory
+      </Typography>
+    </DialogTitle>
 
-          <h2 className="text-2xl font-bold">
-            Add Stock
-          </h2>
+    <Divider />
 
-          <button
-            onClick={onClose}
-            className="text-2xl"
-          >
-            ×
-          </button>
+    <DialogContent sx={{ mt: 3 }}>
 
-        </div>
+      <form onSubmit={handleSubmit}>
 
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <Grid container spacing={3}>
 
-          <div>
+          {/* Product */}
 
-            <label className="block mb-2 font-medium">
-              Product
-            </label>
+          <Grid item xs={12}>
 
-            <select
-              value={productId}
-              onChange={(e) =>
-                setProductId(e.target.value)
-              }
-              className="w-full border rounded-xl px-4 py-3"
-              required
-            >
-              <option value="">
-                Select Product
-              </option>
+            <TextField
+              fullWidth
+              size="small"
+              label="Product"
+              value={product?.name || ""}
+              disabled
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: "12px",
+                  bgcolor: "#F8FAFC",
+                },
+              }}
+            />
 
-              {inventory.map((item) => (
-                <option
-                  key={item._id}
-                  value={item._id}
-                >
-                  {item.name}
-                </option>
-              ))}
+          </Grid>
 
-            </select>
+          {/* Current Stock */}
 
-          </div>
+          <Grid item xs={12} md={6}>
 
-          <div>
+            <TextField
+              fullWidth
+              size="small"
+              label="Current Stock"
+              value={product?.stock || 0}
+              disabled
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: "12px",
+                  bgcolor: "#F8FAFC",
+                },
+              }}
+            />
 
-            <label className="block mb-2 font-medium">
-              Quantity
-            </label>
+          </Grid>
 
-            <input
+          {/* Quantity */}
+
+          <Grid item xs={12} md={6}>
+
+            <TextField
+              fullWidth
+              size="small"
               type="number"
-              value={quantity}
-              onChange={(e) =>
-                setQuantity(e.target.value)
-              }
-              className="w-full border rounded-xl px-4 py-3"
+              label="Add Quantity"
+              name="quantity"
+              value={formData.quantity}
+              onChange={handleChange}
               required
+              inputProps={{
+                min: 1,
+              }}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: "12px",
+                  bgcolor: "#fff",
+                },
+              }}
             />
 
-          </div>
+          </Grid>
 
-          <div>
+          {/* New Stock */}
 
-            <label className="block mb-2 font-medium">
-              Supplier
-            </label>
+          <Grid item xs={12}>
 
-            <input
-              type="text"
-              value={supplier}
-              onChange={(e) =>
-                setSupplier(e.target.value)
+            <TextField
+              fullWidth
+              size="small"
+              label="Stock After Update"
+              value={
+                Number(product?.stock || 0) +
+                Number(formData.quantity || 0)
               }
-              className="w-full border rounded-xl px-4 py-3"
+              disabled
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: "12px",
+                  bgcolor: "#F8FAFC",
+                },
+              }}
             />
 
-          </div>
+          </Grid>
 
-          <div>
+        </Grid>
 
-            <label className="block mb-2 font-medium">
-              Purchase Price
-            </label>
+      </form>
 
-            <input
-              type="number"
-              value={purchasePrice}
-              onChange={(e) =>
-                setPurchasePrice(e.target.value)
-              }
-              className="w-full border rounded-xl px-4 py-3"
-            />
+    </DialogContent>
 
-          </div>
+    <DialogActions
+      sx={{
+        px: 3,
+        pb: 3,
+        gap: 2,
+      }}
+    >
 
-          <div className="flex justify-end gap-3">
+      <Button
+        variant="outlined"
+        onClick={onClose}
+        sx={{
+          borderRadius: 2,
+          textTransform: "none",
+          px: 3,
+        }}
+      >
+        Cancel
+      </Button>
 
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-6 py-3 border rounded-xl"
-            >
-              Cancel
-            </button>
+      <Button
+        variant="contained"
+        onClick={handleSubmit}
+        disabled={loading}
+        sx={{
+          bgcolor: "#2563EB",
+          borderRadius: 2,
+          textTransform: "none",
+          px: 3,
+          "&:hover": {
+            bgcolor: "#1D4ED8",
+          },
+        }}
+      >
+        {loading ? "Saving..." : "Update Stock"}
+      </Button>
 
-            <button
-              type="submit"
-              className="px-6 py-3 bg-blue-600 text-white rounded-xl"
-            >
-              Add Stock
-            </button>
+    </DialogActions>
 
-          </div>
-
-        </form>
-
-      </div>
-
-    </div>
-  );
+  </Dialog>
+);
 };
 
 export default AddStockModal;

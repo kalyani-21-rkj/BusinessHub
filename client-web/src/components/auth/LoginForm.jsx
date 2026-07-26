@@ -1,182 +1,312 @@
 import { loginUser } from "../../services/authService";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import {
-  FaEnvelope,
-  FaLock,
-  FaEye,
-  FaEyeSlash,
-} from "react-icons/fa";
+  Box,
+  Paper,
+  Typography,
+  TextField,
+  Button,
+  InputAdornment,
+  IconButton,
+  Checkbox,
+  FormControlLabel,
+  CircularProgress,
+  Snackbar,
+  Alert,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+} from "@mui/material";
+
+import {
+  Email,
+  Lock,
+  Visibility,
+  VisibilityOff,
+} from "@mui/icons-material";
 
 const LoginForm = () => {
-  const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
-  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+
+  const [role, setRole] = useState("admin");
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    severity: "error",
+    message: "",
+  });
+
+  const handleClose = () => {
+    setSnackbar({
+      ...snackbar,
+      open: false,
+    });
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
 
     setLoading(true);
-    setError("");
 
     try {
       const response = await loginUser({
         email,
         password,
+        role,
       });
+      console.log(response.data);
 
       const { token, user } = response.data;
 
-      // Save token & user
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("role", user.role);
 
-      console.log("Login Successful");
+      setSnackbar({
+        open: true,
+        severity: "success",
+        message: "Login Successful",
+      });
 
-      navigate("/dashboard");
+      navigate("/dashboard", { replace: true });
     } catch (err) {
-      console.log(err);
-
-      setError(
-        err.response?.data?.message || "Login Failed. Please try again."
-      );
+      setSnackbar({
+        open: true,
+        severity: "error",
+        message:
+          err.response?.data?.message ||
+          "Login Failed. Please try again.",
+      });
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="w-full lg:w-[62%] flex items-center justify-center bg-slate-100">
-      <div className="w-[520px] rounded-3xl bg-white p-12 shadow-[0_15px_50px_rgba(0,0,0,0.08)]">
+    <>
+      <Box
+        sx={{
+          width: {
+            xs: "100%",
+            lg: "50%",
+          },
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          p: {
+            xs: 2,
+            sm: 4,
+            md: 6,
+          },
+          bgcolor: "#f8fafc",
+        }}
+      >
+        <Paper
+          elevation={8}
+          sx={{
+            width: "100%",
+            maxWidth: 500,
+            borderRadius: 4,
+            p: {
+              xs: 3,
+              sm: 5,
+            },
+          }}
+        >
+          <Typography
+            variant="h4"
+            fontWeight="bold"
+            align="center"
+            gutterBottom
+          >
+            Welcome Back 👋
+          </Typography>
 
-        {/* Heading */}
+          <Typography
+            align="center"
+            color="text.secondary"
+            mb={4}
+          >
+            Login to continue to BusinessHub
+          </Typography>
 
-        <div className="text-center">
-          <h1 className="text-4xl font-bold text-slate-800">
-            Welcome Back
-          </h1>
+          <FormControl fullWidth sx={{ mb: 2 }}>
+  <InputLabel>Login As</InputLabel>
 
-          <p className="mt-2 text-lg text-slate-500">
-            Login to continue to your account
-          </p>
-        </div>
+  <Select
+    value={role}
+    label="Login As"
+    onChange={(e) => setRole(e.target.value)}
+  >
+    <MenuItem value="admin">Admin</MenuItem>
+    <MenuItem value="hr">HR</MenuItem>
+    <MenuItem value="customer">Customer</MenuItem>
+  </Select>
+</FormControl>
 
-        {/* Form */}
-
-        <form className="mt-10" onSubmit={handleLogin}>
-
-          {/* Email */}
-
-          <div className="mb-6">
-
-            <div className="mb-2 flex items-center gap-3">
-              <FaEnvelope className="text-slate-500" />
-              <label className="font-semibold text-slate-700">
-                Email
-              </label>
-            </div>
-
-            <input
-              type="email"
-              placeholder="Enter your email"
+          <Box
+            component="form"
+            onSubmit={handleLogin}
+          >
+            <TextField
+              fullWidth
+              label="Email"
+              margin="normal"
+              variant="outlined"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="h-12 w-full rounded-xl border border-gray-300 px-4 text-[15px] outline-none transition focus:border-blue-600 focus:ring-4 focus:ring-blue-100"
+              onChange={(e) =>
+                setEmail(e.target.value)
+              }
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Email color="primary" />
+                  </InputAdornment>
+                ),
+              }}
             />
 
-          </div>
+            <TextField
+              fullWidth
+              margin="normal"
+              label="Password"
+              type={
+                showPassword ? "text" : "password"
+              }
+              value={password}
+              onChange={(e) =>
+                setPassword(e.target.value)
+              }
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <Lock color="primary" />
+                  </InputAdornment>
+                ),
 
-          {/* Password */}
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={() =>
+                        setShowPassword(
+                          !showPassword
+                        )
+                      }
+                    >
+                      {showPassword ? (
+                        <VisibilityOff />
+                      ) : (
+                        <Visibility />
+                      )}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
 
-          <div className="mb-4">
-
-            <div className="mb-2 flex items-center gap-2">
-              <FaLock className="text-slate-500" />
-              <label className="font-semibold text-slate-700">
-                Password
-              </label>
-            </div>
-
-            <div className="relative">
-
-              <input
-                type={showPassword ? "text" : "password"}
-                placeholder="Enter your password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="h-12 w-full rounded-xl border border-gray-300 px-4 pr-12 text-[15px] outline-none transition focus:border-blue-600 focus:ring-4 focus:ring-blue-100"
-              />
-
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500"
-              >
-                {showPassword ? <FaEyeSlash /> : <FaEye />}
-              </button>
-
-            </div>
-
-          </div>
-
-          {/* Error Message */}
-
-          {error && (
-            <div className="mb-5 rounded-xl bg-red-100 border border-red-300 p-3 text-sm text-red-600">
-              {error}
-            </div>
-          )}
-
-          {/* Remember */}
-
-          <div className="mb-8 flex items-center justify-between">
-
-            <label className="flex items-center gap-2 text-[15px] text-slate-600">
-
-              <input
-                type="checkbox"
-                className="h-4 w-4 accent-blue-600"
-              />
-
-              Remember Me
-
-            </label>
-
-            <button
-              type="button"
-              className="text-[15px] font-medium text-blue-600 hover:text-blue-700"
+            <Box
+              display="flex"
+              justifyContent="space-between"
+              alignItems="center"
+              mt={2}
+              mb={3}
+              flexWrap="wrap"
+              gap={1}
             >
-              Forgot Password?
-            </button>
+              <FormControlLabel
+                control={<Checkbox />}
+                label="Remember Me"
+              />
 
-          </div>
+              <Typography
+                color="primary"
+                sx={{
+                  cursor: "pointer",
+                  fontWeight: 600,
+                }}
+              >
+                Forgot Password?
+              </Typography>
+            </Box>
 
-          {/* Login Button */}
+            <Button
+  type="submit"
+  fullWidth
+  variant="contained"
+  size="large"
+  disabled={loading}
+  sx={{
+    py: 1.5,
+    borderRadius: 3,
+    fontWeight: "bold",
+    fontSize: 16,
+    textTransform: "none",
+    background:
+      "linear-gradient(90deg,#2563eb,#1d4ed8)",
+  }}
+>
+  {loading ? (
+    <CircularProgress
+      color="inherit"
+      size={24}
+    />
+  ) : (
+    "Sign In"
+  )}
+</Button>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className={`h-12 w-full rounded-xl text-lg font-semibold text-white shadow-lg transition ${
-              loading
-                ? "bg-blue-400 cursor-not-allowed"
-                : "bg-blue-600 hover:bg-blue-700"
-            }`}
-          >
-            {loading ? "Signing In..." : "Login"}
-          </button>
+<Typography
+  align="center"
+  mt={3}
+  color="text.secondary"
+>
+  Don't have an account?{" "}
+  <Typography
+    component={Link}
+    to="/register"
+    sx={{
+      color: "#2563eb",
+      fontWeight: 700,
+      textDecoration: "none",
+      cursor: "pointer",
+      "&:hover": {
+        textDecoration: "underline",
+      },
+    }}
+  >
+    Register Here
+  </Typography>
+</Typography>
+          </Box>
+        </Paper>
+      </Box>
 
-        </form>
-
-      </div>
-    </div>
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={handleClose}
+        anchorOrigin={{
+          vertical: "top",
+          horizontal: "right",
+        }}
+      >
+        <Alert
+          severity={snackbar.severity}
+          variant="filled"
+          onClose={handleClose}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
+    </>
   );
 };
 

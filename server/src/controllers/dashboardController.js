@@ -18,6 +18,15 @@ const getDashboard = asyncHandler(async (req, res) => {
         0
     );
 
+    // NEW
+    const recentCustomers = await Customer.find()
+        .sort({ createdAt: -1 })
+        .limit(5);
+
+    const productStock = await Product.find()
+        .select("productName stock quantity")
+        .limit(6);
+
     res.status(200).json({
         success: true,
         dashboard: {
@@ -25,11 +34,11 @@ const getDashboard = asyncHandler(async (req, res) => {
             totalCustomers,
             totalProducts,
             totalRevenue,
+            recentCustomers,
+            productStock,
         },
     });
 
 });
 
-module.exports = {
-    getDashboard,
-};
+module.exports = { getDashboard };

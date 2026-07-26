@@ -1,19 +1,35 @@
 import {
-  FaEye,
-  FaEdit,
-  FaTrash,
-  FaDownload,
-} from "react-icons/fa";
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  Paper,
+  Avatar,
+  Box,
+  Typography,
+  Chip,
+  IconButton,
+  Tooltip,
+  CircularProgress,
+} from "@mui/material";
+
+import {
+  Edit,
+  Delete,
+  Visibility,
+  Download,
+} from "@mui/icons-material";
 
 import { downloadPayslip } from "../../services/payrollService";
 
 const PayrollTable = ({
   payrolls = [],
+  loading,
   onView,
   onEdit,
   onDelete,
 }) => {
-
   const handleDownload = async (id) => {
     try {
       const res = await downloadPayslip(id);
@@ -34,171 +50,313 @@ const PayrollTable = ({
       link.remove();
 
       window.URL.revokeObjectURL(url);
-
     } catch (err) {
-      console.error(err);
-      alert("Unable to download payslip");
+      console.log(err);
+
+      alert("Unable to Download Payslip");
     }
   };
 
+  if (loading) {
+    return (
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        py={8}
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (payrolls.length === 0) {
+    return (
+      <Typography
+        align="center"
+        sx={{ py: 8 }}
+      >
+        No Payroll Found
+      </Typography>
+    );
+  }
+
   return (
-    <div className="bg-white rounded-1xl shadow-sm border border-slate-200 overflow-hidden">
+    <Paper
+      elevation={0}
+      sx={{
+        borderRadius: 4,
+        overflow: "hidden",
+        border: "1px solid #E5E7EB",
+      }}
+    >
+      <Table>
 
-      <div className="overflow-x-auto">
+        <TableHead>
 
-        <table className="w-full">
+          <TableRow
+            sx={{
+              bgcolor: "#F8FAFC",
+            }}
+          >
+            <TableCell sx={{ fontWeight: 700 }}>
+              Employee
+            </TableCell>
 
-          <thead className="bg-slate-50">
-            <tr className="text-left text-sm text-slate-600">
+            <TableCell sx={{ fontWeight: 700 }}>
+              Department
+            </TableCell>
 
-              <th className="px-6 py-4">Employee</th>
-              <th className="px-6 py-4">Department</th>
-              <th className="px-6 py-4">Basic Salary</th>
-              <th className="px-6 py-4">Bonus</th>
-              <th className="px-6 py-4">Deduction</th>
-              <th className="px-6 py-4">Net Salary</th>
-              <th className="px-6 py-4">Status</th>
-              <th className="px-6 py-4 text-center">
-                Payslip
-              </th>
-              <th className="px-6 py-4 text-right">
-                Actions
-              </th>
+            <TableCell sx={{ fontWeight: 700 }}>
+              Basic Salary
+            </TableCell>
 
-            </tr>
-          </thead>
+            <TableCell sx={{ fontWeight: 700 }}>
+              Bonus
+            </TableCell>
 
-          <tbody>
+            <TableCell sx={{ fontWeight: 700 }}>
+              Deduction
+            </TableCell>
 
-            {payrolls.length === 0 ? (
+            <TableCell sx={{ fontWeight: 700 }}>
+              Net Salary
+            </TableCell>
 
-              <tr>
+            <TableCell sx={{ fontWeight: 700 }}>
+              Status
+            </TableCell>
 
-                <td
-                  colSpan="9"
-                  className="text-center py-8 text-slate-500"
+            <TableCell
+              align="center"
+              sx={{ fontWeight: 700 }}
+            >
+              Payslip
+            </TableCell>
+
+            <TableCell
+              align="center"
+              sx={{ fontWeight: 700 }}
+            >
+              Actions
+            </TableCell>
+
+          </TableRow>
+
+        </TableHead>
+
+        <TableBody>
+
+          {payrolls.map((payroll) => (
+
+            <TableRow
+              key={payroll._id}
+              hover
+              sx={{
+                transition: ".25s",
+                "&:hover": {
+                  bgcolor: "#F9FAFB",
+                },
+              }}
+            >
+
+              {/* Employee */}
+
+              <TableCell>
+
+                <Box
+                  display="flex"
+                  alignItems="center"
+                  gap={2}
                 >
-                  No Payroll Found
-                </td>
 
-              </tr>
+                  <Avatar
+                    sx={{
+                      bgcolor: "#2563EB",
+                      width: 44,
+                      height: 44,
+                      fontWeight: 700,
+                    }}
+                  >
+                    {payroll.employee?.fullName?.charAt(0)}
+                  </Avatar>
 
-            ) : (
+                  <Typography fontWeight={600}>
+                    {payroll.employee?.fullName}
+                  </Typography>
 
-              payrolls.map((payroll) => (
+                </Box>
 
-                <tr
-                  key={payroll._id}
-                  className="border-t hover:bg-slate-50 transition"
-                >
+              </TableCell>
 
-                  <td className="px-6 py-5">
+              {/* Department */}
 
-                    <div className="flex items-center gap-3">
+              <TableCell>
+                {payroll.employee?.department}
+              </TableCell>
 
-                      <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center font-semibold">
-                        {payroll.employee?.fullName?.charAt(0)}
-                      </div>
+              {/* Basic */}
 
-                      <span className="font-semibold">
-                        {payroll.employee?.fullName}
-                      </span>
+              <TableCell>
+                ₹{Number(
+                  payroll.basicSalary || 0
+                ).toLocaleString("en-IN")}
+              </TableCell>
 
-                    </div>
+              {/* Bonus */}
 
-                  </td>
+              <TableCell
+                sx={{
+                  color: "#16A34A",
+                  fontWeight: 600,
+                }}
+              >
+                ₹{Number(
+                  payroll.bonus || 0
+                ).toLocaleString("en-IN")}
+              </TableCell>
 
-                  <td className="px-6 py-5">
-                    {payroll.employee?.department}
-                  </td>
+              {/* Deduction */}
 
-                  <td className="px-6 py-5 font-medium">
-                    ₹{payroll.basicSalary}
-                  </td>
+              <TableCell
+                sx={{
+                  color: "#DC2626",
+                  fontWeight: 600,
+                }}
+              >
+                ₹{Number(
+                  payroll.deduction || 0
+                ).toLocaleString("en-IN")}
+              </TableCell>
 
-                  <td className="px-6 py-5 text-green-600 font-medium">
-                    ₹{payroll.bonus}
-                  </td>
+              {/* Net Salary */}
 
-                  <td className="px-6 py-5 text-red-600 font-medium">
-                    ₹{payroll.deduction}
-                  </td>
+              <TableCell
+                sx={{
+                  fontWeight: 700,
+                  color: "#2563EB",
+                }}
+              >
+                ₹{Number(
+                  payroll.netSalary || 0
+                ).toLocaleString("en-IN")}
+              </TableCell>
 
-                  <td className="px-6 py-5 font-bold text-blue-600">
-                    ₹{payroll.netSalary}
-                  </td>
+              {/* Status */}
 
-                  <td className="px-6 py-5">
+              <TableCell>
 
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                        payroll.paymentStatus === "Paid"
-                          ? "bg-green-100 text-green-700"
-                          : "bg-yellow-100 text-yellow-700"
-                      }`}
-                    >
-                      {payroll.paymentStatus}
-                    </span>
+                <Chip
+                  label={payroll.paymentStatus}
+                  size="small"
+                  color={
+                    payroll.paymentStatus === "Paid"
+                      ? "success"
+                      : "warning"
+                  }
+                  sx={{
+                    borderRadius: 5,
+                    fontWeight: 600,
+                  }}
+                />
 
-                  </td>
+              </TableCell>
 
-                  <td className="px-6 py-5">
+              {/* Download */}
 
-                    <div className="flex justify-center">
+              <TableCell align="center">
 
-                      <button
-                        onClick={() => handleDownload(payroll._id)}
-                        className="p-2 rounded-lg hover:bg-slate-100 text-blue-600"
-                      >
-                        <FaDownload />
-                      </button>
+                <Tooltip title="Download Payslip">
 
-                    </div>
+                  <IconButton
+                    onClick={() =>
+                      handleDownload(payroll._id)
+                    }
+                    sx={{
+                      bgcolor: "#EFF6FF",
+                      color: "#2563EB",
+                      "&:hover": {
+                        bgcolor: "#DBEAFE",
+                      },
+                    }}
+                  >
+                    <Download fontSize="small" />
+                  </IconButton>
 
-                  </td>
+                </Tooltip>
 
-                  <td className="px-6 py-5">
+              </TableCell>
 
-                    <div className="flex justify-end gap-2">
+              {/* Actions */}
 
-                      <button
-                        onClick={() => onView(payroll)}
-                        className="p-2 rounded-lg hover:bg-slate-100"
-                      >
-                        <FaEye />
-                      </button>
+              <TableCell align="center">
 
-                      <button
-                        onClick={() => onEdit(payroll)}
-                        className="p-2 rounded-lg hover:bg-blue-100 text-blue-600"
-                      >
-                        <FaEdit />
-                      </button>
+                <Tooltip title="View Payroll">
 
-                      <button
-                        onClick={() => onDelete(payroll._id)}
-                        className="p-2 rounded-lg hover:bg-red-100 text-red-600"
-                      >
-                        <FaTrash />
-                      </button>
+                  <IconButton
+                    onClick={() => onView(payroll)}
+                    sx={{
+                      bgcolor: "#F3F4F6",
+                      color: "#374151",
+                      mr: 1,
+                      "&:hover": {
+                        bgcolor: "#E5E7EB",
+                      },
+                    }}
+                  >
+                    <Visibility fontSize="small" />
+                  </IconButton>
 
-                    </div>
+                </Tooltip>
 
-                  </td>
+                <Tooltip title="Edit Payroll">
 
-                </tr>
+                  <IconButton
+                    onClick={() => onEdit(payroll)}
+                    sx={{
+                      bgcolor: "#EFF6FF",
+                      color: "#2563EB",
+                      mr: 1,
+                      "&:hover": {
+                        bgcolor: "#DBEAFE",
+                      },
+                    }}
+                  >
+                    <Edit fontSize="small" />
+                  </IconButton>
 
-              ))
+                </Tooltip>
 
-            )}
+                <Tooltip title="Delete Payroll">
 
-          </tbody>
+                  <IconButton
+                    onClick={() =>
+                      onDelete(payroll._id)
+                    }
+                    sx={{
+                      bgcolor: "#FEF2F2",
+                      color: "#EF4444",
+                      "&:hover": {
+                        bgcolor: "#FEE2E2",
+                      },
+                    }}
+                  >
+                    <Delete fontSize="small" />
+                  </IconButton>
 
-        </table>
+                </Tooltip>
 
-      </div>
+              </TableCell>
 
-    </div>
+            </TableRow>
+
+          ))}
+
+        </TableBody>
+
+      </Table>
+
+    </Paper>
   );
 };
 

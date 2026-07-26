@@ -1,7 +1,20 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 
-import { Search, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
+
+import {
+  Box,
+  Button,
+  Paper,
+  TextField,
+  InputAdornment,
+  Typography,
+} from "@mui/material";
+
+import {
+  Search,
+  Add,
+} from "@mui/icons-material";
 
 import CustomerTable from "../../components/customers/CustomerTable";
 import CustomerModal from "../../components/customers/CustomerModal";
@@ -59,65 +72,125 @@ const Customers = () => {
 
   return (
 
-    <div className="flex flex-col gap-8 p-6 w-full">
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-    
-      </div>
+    <Box sx={{ p: 3 }}>
 
-      <div className="flex justify-between items-center w-full">
+      {/* Header */}
 
-        <div className="relative w-[480px]">
+      <Box
+        display="flex"
+        justifyContent="space-between"
+        alignItems="center"
+        flexWrap="wrap"
+        gap={2}
+        mb={4}
+      >
 
-          <Search className="absolute left-70 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5" />
+        <Box>
 
-          <input
-            type="text"
-            placeholder="Search customers..."
-            value={keyword}
-            onChange={(e)=>setKeyword(e.target.value)}
-            className="w-full sm:w-80 h-8 pl-4 pr-4 rounded-xl border border-slate-200 bg-white placeholder-slate-400 text-slate-700 outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all shadow-sm"
-          />
+          <Typography
+            variant="h4"
+            fontWeight={700}
+          >
+            Customer Management
+          </Typography>
 
-        </div>
+          <Typography
+            color="text.secondary"
+            mt={0.5}
+          >
+            Manage your customers
+          </Typography>
 
-        <button
-          onClick={()=>{
+        </Box>
+
+      </Box>
+
+      {/* Search + Add Button */}
+
+      <Paper
+        elevation={0}
+        sx={{
+          p: 2,
+          mb: 4,
+          borderRadius: 4,
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          flexWrap: "wrap",
+          gap: 2,
+          boxShadow: "0 8px 24px rgba(37,99,235,.06)",
+        }}
+      >
+
+        <TextField
+          placeholder="Search customer..."
+          value={keyword}
+          onChange={(e) => setKeyword(e.target.value)}
+          size="small"
+          sx={{
+            width: {
+              xs: "100%",
+              sm: 320,
+            },
+          }}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <Search />
+              </InputAdornment>
+            ),
+          }}
+        />
+
+        <Button
+          variant="contained"
+          startIcon={<Add />}
+          onClick={() => {
             setSelectedCustomer(null);
             setOpenModal(true);
           }}
-          className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-xl"
-        >
-
-          <Plus size={20} />
-
-          Add Customer
-
-        </button>
-
-      </div>
-
-      <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
-
-        <CustomerTable
-          customers={customers}
-          loading={loading}
-          onEdit={(customer)=>{
-            setSelectedCustomer(customer);
-            setOpenModal(true);
+          sx={{
+            bgcolor: "#2563EB",
+            borderRadius: 3,
+            px: 3,
+            py: 1.2,
+            textTransform: "none",
+            fontWeight: 600,
+            "&:hover": {
+              bgcolor: "#1D4ED8",
+            },
           }}
-          refreshCustomers={()=>fetchCustomers(keyword)}
-        />
+        >
+          Add Customer
+        </Button>
 
-      </div>
+      </Paper>
+
+      {/* Customer Cards */}
+
+      <CustomerTable
+        customers={customers}
+        loading={loading}
+        onEdit={(customer) => {
+          setSelectedCustomer(customer);
+          setOpenModal(true);
+        }}
+        refreshCustomers={() => fetchCustomers(keyword)}
+      />
+
+      {/* Modal */}
 
       <CustomerModal
         open={openModal}
-        onClose={()=>setOpenModal(false)}
+        onClose={() => {
+          setOpenModal(false);
+          setSelectedCustomer(null);
+        }}
         customer={selectedCustomer}
-        onSuccess={()=>fetchCustomers(keyword)}
+        onSuccess={() => fetchCustomers(keyword)}
       />
 
-    </div>
+    </Box>
 
   );
 

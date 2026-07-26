@@ -1,5 +1,15 @@
-import { Search } from "lucide-react";
-import { FaPlus } from "react-icons/fa";
+import {
+  Paper,
+  TextField,
+  Button,
+  MenuItem,
+  InputAdornment,
+} from "@mui/material";
+
+import {
+  Search,
+  Add,
+} from "@mui/icons-material";
 
 const PurchaseFilters = ({
   keyword,
@@ -10,75 +20,115 @@ const PurchaseFilters = ({
   setWarehouse,
   status,
   setStatus,
-  onCreate,
+  onCreatePurchase,
 }) => {
   return (
-    <div className="bg-none rounded-2xl border border-slate-200 p-5">
-      <div className="flex flex-col lg:flex-row gap-4 justify-between">
-        <div className="flex flex-1 flex-col md:flex-row gap-4">
+    <Paper
+      elevation={0}
+      sx={{
+        p: 2,
+        mb: 2,
+        mt: 1,
+        borderRadius: 4,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        flexWrap: "wrap",
+        gap: 2,
+        boxShadow: "0 8px 24px rgba(37,99,235,.06)",
+      }}
+    >
+      {/* Search */}
 
-          {/* Search */}
-          <div className="relative flex-1">
-            <Search
-              className="absolute left-70 top-1/2 -translate-y-1/2 text-slate-400"
-              size={18}
-            />
+      <TextField
+        placeholder="Search Purchase Order..."
+        size="small"
+        value={keyword}
+        onChange={(e) => setKeyword(e.target.value)}
+        sx={{
+          width: {
+            xs: "100%",
+            sm: 280,
+          },
+        }}
+        InputProps={{
+          startAdornment: (
+            <InputAdornment position="start">
+              <Search />
+            </InputAdornment>
+          ),
+        }}
+      />
 
-            <input
-              type="text"
-              placeholder="Search Purchase..."
-              value={keyword}
-              onChange={(e) => setKeyword(e.target.value)}
-              className="w-full sm:w-80 h-8 pl-4 pr-4 rounded-xl border border-slate-200 bg-white placeholder-slate-400 text-slate-700 outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all shadow-sm"
-            />
-          </div>
+      {/* Supplier */}
 
-          {/* Supplier */}
-          <select
-            value={supplier}
-            onChange={(e) => setSupplier(e.target.value)}
-            className="bg-white border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">All Suppliers</option>
-            <option value="Dell India">Dell India</option>
-            <option value="Apple India">Apple India</option>
-            <option value="Samsung">Samsung</option>
-          </select>
+      <TextField
+        select
+        size="small"
+        label="Supplier"
+        value={supplier}
+        onChange={(e) => setSupplier(e.target.value)}
+        sx={{ minWidth: 180 }}
+      >
+        <MenuItem value="">All Suppliers</MenuItem>
+        <MenuItem value="Apple India">Apple India</MenuItem>
+        <MenuItem value="Dell India">Dell India</MenuItem>
+        <MenuItem value="Samsung">Samsung</MenuItem>
+      </TextField>
 
-          {/* Warehouse */}
-          <select
-            value={warehouse}
-            onChange={(e) => setWarehouse(e.target.value)}
-            className="bg-white border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">All Warehouses</option>
-            <option value="Mumbai">Mumbai</option>
-            <option value="Pune">Pune</option>
-            <option value="Delhi">Delhi</option>
-          </select>
+      {/* Warehouse */}
 
-          {/* Status */}
-          <select
-            value={status}
-            onChange={(e) => setStatus(e.target.value)}
-            className="bg-white border border-slate-200 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="">All Status</option>
-            <option value="Pending">Pending</option>
-            <option value="Receiving">Receiving</option>
-            <option value="Completed">Completed</option>
-          </select>
-        </div>
+      <TextField
+        select
+        size="small"
+        label="Warehouse"
+        value={warehouse}
+        onChange={(e) => setWarehouse(e.target.value)}
+        sx={{ minWidth: 170 }}
+      >
+        <MenuItem value="">All Warehouses</MenuItem>
+        <MenuItem value="Mumbai">Mumbai</MenuItem>
+        <MenuItem value="Pune">Pune</MenuItem>
+        <MenuItem value="Delhi">Delhi</MenuItem>
+      </TextField>
 
-        <button
-          onClick={onCreate}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl flex items-center gap-2 transition"
-        >
-          <FaPlus />
-          New Purchase
-        </button>
-      </div>
-    </div>
+      {/* Status */}
+
+      <TextField
+        select
+        size="small"
+        label="Status"
+        value={status}
+        onChange={(e) => setStatus(e.target.value)}
+        sx={{ minWidth: 170 }}
+      >
+        <MenuItem value="">All Status</MenuItem>
+        <MenuItem value="Ordered">Ordered</MenuItem>
+        <MenuItem value="Received">Received</MenuItem>
+        <MenuItem value="Pending">Pending</MenuItem>
+      </TextField>
+
+      {/* Create Purchase */}
+
+      <Button
+        variant="contained"
+        startIcon={<Add />}
+        onClick={onCreatePurchase}
+        sx={{
+          bgcolor: "#2563EB",
+          borderRadius: 3,
+          px: 3,
+          py: 1.2,
+          textTransform: "none",
+          fontWeight: 600,
+          "&:hover": {
+            bgcolor: "#1D4ED8",
+          },
+        }}
+      >
+        Create Purchase
+      </Button>
+    </Paper>
   );
 };
 

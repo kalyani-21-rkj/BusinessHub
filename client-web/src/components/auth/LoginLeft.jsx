@@ -11,11 +11,7 @@ const LoginLeft = () => {
 
         <div className="mt-16">
 
-          <h1 className="text-6xl font-bold leading-tight">
-            Welcome to
-            <br />
-            BusinessHub
-          </h1>
+          
 
         </div>
 

@@ -1,94 +1,63 @@
 import {
-  FaEye,
   FaEdit,
   FaTrash,
 } from "react-icons/fa";
 
-const PurchaseOrderTable = ({
-  purchases = [],
+const BillingTable = ({
+  invoices = [],
   loading,
-  onView,
   onEdit,
   onDelete,
 }) => {
   if (loading) {
     return (
       <div className="text-center py-16 text-slate-500">
-        Loading Purchase Orders...
+        Loading Invoices...
       </div>
     );
   }
 
-  if (purchases.length === 0) {
+  if (invoices.length === 0) {
     return (
       <div className="text-center py-16 text-slate-500">
-        No Purchase Orders Found
+        No Invoices Found
       </div>
     );
   }
 
   return (
     <>
+      {/* ================= MOBILE ================= */}
 
-      {/* ================= MOBILE VIEW ================= */}
-
-      <div className="lg:hidden space-y-4">
-        {purchases.map((order) => (
+      <div className="lg:hidden flex flex-col gap-6 px-1">
+        {invoices.map((invoice) => (
           <div
-            key={order._id}
-            className="bg-white border border-slate-200 rounded-2xl shadow-sm p-5"
+            key={invoice._id}
+            className="bg-white border border-slate-200 rounded-2xl shadow-md p-5"
           >
-
             <div className="flex justify-between items-start">
-
               <div>
-
                 <h3 className="font-bold text-blue-600">
-                  PO-{order._id.slice(-6).toUpperCase()}
+                  {invoice.invoiceNo}
                 </h3>
 
                 <p className="text-sm text-slate-500 mt-1">
-                  {order.supplier}
+                  {invoice.customerName}
                 </p>
-
               </div>
 
               <span
                 className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                  order.status === "Received"
+                  invoice.status === "Paid"
                     ? "bg-green-100 text-green-700"
-                    : order.status === "Ordered"
-                    ? "bg-blue-100 text-blue-700"
                     : "bg-yellow-100 text-yellow-700"
                 }`}
               >
-                {order.status}
+                {invoice.status}
               </span>
-
             </div>
 
             <div className="grid grid-cols-2 gap-4 mt-5 text-sm">
-
-              <div>
-                <p className="text-slate-500">
-                  Warehouse
-                </p>
-
-                <p className="font-semibold">
-                  {order.warehouse}
-                </p>
-              </div>
-
-              <div>
-                <p className="text-slate-500">
-                  Items
-                </p>
-
-                <p className="font-semibold">
-                  {order.products?.length || 0}
-                </p>
-              </div>
-
               <div>
                 <p className="text-slate-500">
                   Amount
@@ -97,156 +66,130 @@ const PurchaseOrderTable = ({
                 <p className="font-semibold">
                   ₹
                   {Number(
-                    order.totalAmount || 0
+                    invoice.totalAmount || 0
                   ).toLocaleString()}
                 </p>
               </div>
 
               <div>
                 <p className="text-slate-500">
-                  Expected
+                  Date
                 </p>
 
                 <p className="font-semibold">
-                  {order.expectedDate
+                  {invoice.createdAt
                     ? new Date(
-                        order.expectedDate
+                        invoice.createdAt
                       ).toLocaleDateString()
                     : "-"}
                 </p>
               </div>
-
             </div>
 
             <div className="flex justify-end gap-2 mt-5 border-t pt-4">
-                            <button
-                onClick={() => onView(order)}
-                className="w-10 h-10 rounded-xl hover:bg-slate-200 flex items-center justify-center transition"
-              >
-                <FaEye />
-              </button>
+              
 
               <button
-                onClick={() => onEdit(order)}
+                onClick={() => onEdit(invoice)}
                 className="w-10 h-10 rounded-xl text-blue-600 hover:bg-blue-100 flex items-center justify-center transition"
               >
                 <FaEdit />
               </button>
 
               <button
-                onClick={() => onDelete(order._id)}
+                onClick={() =>
+                  onDelete(invoice._id)
+                }
                 className="w-10 h-10 rounded-xl text-red-600 hover:bg-red-100 flex items-center justify-center transition"
               >
                 <FaTrash />
               </button>
-
             </div>
-
           </div>
         ))}
       </div>
 
-      {/* ================= DESKTOP TABLE ================= */}
+      {/* ================= DESKTOP ================= */}
 
-      <div className="hidden lg:block overflow-x-auto">
-
-        <table className="w-full bg-white">
-
+      <div className="hidden lg:block overflow-x-auto bg-white rounded-2xl shadow-sm border border-slate-200">
+        <table className="w-full">
           <thead className="bg-slate-50 border-b">
-
             <tr className="text-left text-sm text-slate-600">
+              <th className="px-6 py-4">
+                Invoice No
+              </th>
 
-              <th className="px-6 py-4">PO No</th>
+              <th className="px-6 py-4">
+                Customer
+              </th>
 
-              <th className="px-6 py-4">Supplier</th>
+              <th className="px-6 py-4">
+                Amount
+              </th>
 
-              <th className="px-6 py-4">Warehouse</th>
+              <th className="px-6 py-4">
+                Date
+              </th>
 
-              <th className="px-6 py-4">Items</th>
-
-              <th className="px-6 py-4">Amount</th>
-
-              <th className="px-6 py-4">Expected</th>
-
-              <th className="px-6 py-4">Status</th>
+              <th className="px-6 py-4">
+                Status
+              </th>
 
               <th className="px-6 py-4 text-right">
                 Actions
               </th>
-
             </tr>
-
           </thead>
 
           <tbody>
-
-            {purchases.map((order) => (
-
+            {invoices.map((invoice) => (
               <tr
-                key={order._id}
+                key={invoice._id}
                 className="border-b hover:bg-slate-50 transition"
               >
-
                 <td className="px-6 py-5 font-semibold text-blue-600">
-                  PO-{order._id.slice(-6).toUpperCase()}
+                  {invoice.invoiceNo}
                 </td>
 
                 <td className="px-6 py-5">
-                  {order.supplier}
-                </td>
-
-                <td className="px-6 py-5">
-                  {order.warehouse}
-                </td>
-
-                <td className="px-6 py-5">
-                  {order.products?.length || 0}
+                  {invoice.customerName}
                 </td>
 
                 <td className="px-6 py-5 font-semibold">
                   ₹
                   {Number(
-                    order.totalAmount || 0
+                    invoice.totalAmount || 0
                   ).toLocaleString()}
                 </td>
 
                 <td className="px-6 py-5">
-                  {order.expectedDate
+                  {invoice.createdAt
                     ? new Date(
-                        order.expectedDate
+                        invoice.createdAt
                       ).toLocaleDateString()
                     : "-"}
                 </td>
 
                 <td className="px-6 py-5">
-
                   <span
                     className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                      order.status === "Received"
+                      invoice.status === "Paid"
                         ? "bg-green-100 text-green-700"
-                        : order.status === "Ordered"
-                        ? "bg-blue-100 text-blue-700"
                         : "bg-yellow-100 text-yellow-700"
                     }`}
                   >
-                    {order.status}
+                    {invoice.status}
                   </span>
-
                 </td>
 
                 <td className="px-6 py-5">
-
                   <div className="flex justify-end gap-2">
+                    
 
                     <button
-                      onClick={() => onView(order)}
-                      className="w-10 h-10 rounded-xl hover:bg-slate-200 flex items-center justify-center transition"
-                    >
-                      <FaEye />
-                    </button>
-
-                    <button
-                      onClick={() => onEdit(order)}
+                      onClick={() =>
+                        onEdit(invoice)
+                      }
                       className="w-10 h-10 rounded-xl text-blue-600 hover:bg-blue-100 flex items-center justify-center transition"
                     >
                       <FaEdit />
@@ -254,30 +197,21 @@ const PurchaseOrderTable = ({
 
                     <button
                       onClick={() =>
-                        onDelete(order._id)
+                        onDelete(invoice._id)
                       }
                       className="w-10 h-10 rounded-xl text-red-600 hover:bg-red-100 flex items-center justify-center transition"
                     >
                       <FaTrash />
                     </button>
-
                   </div>
-
                 </td>
-
               </tr>
-
             ))}
-
           </tbody>
-
         </table>
-
       </div>
-
     </>
   );
 };
 
-export default PurchaseOrderTable;
-            
+export default BillingTable;

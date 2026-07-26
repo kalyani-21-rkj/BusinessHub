@@ -1,144 +1,223 @@
 import { useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+
 import {
-  FaBell,
-  FaSearch,
-  FaUserCircle,
-} from "react-icons/fa";
+  Avatar,
+  Menu,
+  MenuItem,
+  Divider,
+  ListItemIcon,
+} from "@mui/material";
+
+import {
+  Home,
+  //Person,
+  //Settings,
+  Logout,
+} from "@mui/icons-material";
 
 const Navbar = () => {
-  const [showProfile, setShowProfile] = useState(false);
-
   const location = useLocation();
+  const navigate = useNavigate();
 
-const pageTitles = {
-  "/dashboard": {
-    title: "Dashboard",
-    subtitle: "Welcome back, Admin 👋",
-  },
+  const user =
+    JSON.parse(localStorage.getItem("user")) || {};
 
-  "/customers": {
-    title: "Customers",
-    subtitle: "Manage all customers",
-  },
+  const [anchorEl, setAnchorEl] = useState(null);
 
-  "/employees": {
-    title: "Employees",
-    subtitle: "Manage all employees",
-  },
+  const open = Boolean(anchorEl);
 
-  "/products": {
-    title: "Products",
-    subtitle: "Manage all products",
-  },
+  const handleProfileClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
 
-  "/billing": {
-    title: "Billing",
-    subtitle: "Manage bills & invoices",
-  },
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
 
-  "/settings": {
-    title: "Settings",
-    subtitle: "Application settings",
-  },
-};
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
 
-const current =
-  pageTitles[location.pathname] || {
+    navigate("/");
+
+    handleClose();
+  };
+
+  const pageTitles = {
+    "/dashboard": {
+      title: "Dashboard",
+      subtitle: "Welcome back 👋",
+    },
+
+    "/customers": {
+      title: "Customers",
+      subtitle: "Manage all customers",
+    },
+
+    "/employees": {
+      title: "Employees",
+      subtitle: "Manage all employees",
+    },
+
+    "/attendance": {
+      title: "Attendance",
+      subtitle: "Manage employee attendance",
+    },
+
+    "/leave": {
+      title: "Leave",
+      subtitle: "Manage leave requests",
+    },
+
+    "/payroll": {
+      title: "Payroll",
+      subtitle: "Manage employee payroll",
+    },
+
+    "/products": {
+      title: "Products",
+      subtitle: "Manage all products",
+    },
+
+    "/inventory": {
+      title: "Inventory",
+      subtitle: "Manage inventory stock",
+    },
+
+    "/purchases": {
+      title: "Purchases",
+      subtitle: "Manage purchases",
+    },
+
+    "/billing": {
+      title: "Billing",
+      subtitle: "Manage invoices & billing",
+    },
+  };
+
+  const current = pageTitles[location.pathname] || {
     title: "BusinessHub",
     subtitle: "",
   };
 
   return (
-    <header className="h-20 bg-white border-b border-gray-200 px-8 flex items-center justify-between">
+    <header className="h-20 bg-white border-b border-gray-200 px-6 md:px-8 flex items-center justify-between shadow-sm">
 
       {/* Left */}
-      <div>
-        <h1 className="text-3xl font-bold text-slate-800">
-        {current.title}
-        </h1>
 
-        <p className="text-slate-500">
-        {current.subtitle}
-        </p>
+      <div className="flex items-center gap-4">
+
+        <div className="bg-blue-100 rounded-xl p-3">
+
+          <Home
+            sx={{
+              color: "#2563EB",
+              fontSize: 28,
+            }}
+          />
+
+        </div>
+
+        <div>
+
+          <h1 className="text-3xl font-bold text-slate-800">
+            {current.title}
+          </h1>
+
+          <p className="text-sm text-slate-500">
+            {current.subtitle}
+          </p>
+
+        </div>
+
       </div>
 
       {/* Right */}
-      <div className="flex items-center gap-8 pr-4">
 
-        {/* Search */}
-        <div className="relative">
+      <div>
 
-          <input
-            type="text"
-            placeholder="Search..."
-            className="w-96 h-10 rounded-xl border border-gray-300 pl-5 pr-12 outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
-          />
+        <Avatar
+          onClick={handleProfileClick}
+          sx={{
+            bgcolor: "#2563EB",
+            width: 35,
+            height: 35,
+            cursor: "pointer",
+            fontWeight: "bold",
+            fontSize: "18px",
+          }}
+        >
+          {user?.fullName
+            ? user.fullName.charAt(0).toUpperCase()
+            : "A"}
+        </Avatar>
 
-          <FaSearch className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400" />
+        <Menu
+          anchorEl={anchorEl}
+          open={open}
+          onClose={handleClose}
+          PaperProps={{
+            elevation: 8,
+            sx: {
+              mt: 1.5,
+              width: 250,
+              borderRadius: 3,
+            },
+          }}
+        >
+          {/* User */}
 
-        </div>
+          <div className="flex items-center gap-3 px-4 py-4">
 
-        {/* Notification */}
-        <button className="relative">
+            <Avatar
+              sx={{
+                bgcolor: "#2563EB",
+              }}
+            >
+              {user?.fullName
+                ? user.fullName.charAt(0).toUpperCase()
+                : "A"}
+            </Avatar>
 
-          <FaBell className="text-xl text-slate-500 hover:text-blue-600 transition" />
+            <div>
 
-          <span className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-red-500"></span>
+              <h3 className="font-semibold text-slate-800">
+                {user?.fullName || "Administrator"}
+              </h3>
 
-        </button>
-
-        {/* Profile */}
-        <div className="relative">
-
-          <button
-            onClick={() => setShowProfile(!showProfile)}
-            className="flex items-center"
-          >
-            <FaUserCircle className="text-3xl text-blue-600 hover:text-blue-700 transition" />
-          </button>
-
-          {showProfile && (
-            <div className="absolute right-1 top-14 w-72 rounded-2xl bg-white border border-gray-200 shadow-2xl overflow-hidden z-50">
-
-              {/* User Info */}
-              <div className="flex items-center gap-4 p-5 bg-slate-50">
-
-                <FaUserCircle className="text-2xl text-blue-600" />
-
-                <div>
-                  <h2 className="text-lg font-semibold text-slate-800">
-                    Kalyani
-                  </h2>
-
-                  <p className="text-sm text-slate-500">
-                    Administrator
-                  </p>
-                </div>
-
-              </div>
-
-              {/* Menu */}
-              <div className="py-2">
-
-                <button className="w-full px-2 py-2 text-left hover:bg-slate-100 transition">
-                  My Profile
-                </button>
-
-                <button className="w-full px-5 py-3 text-left hover:bg-slate-100 transition">
-                  Settings
-                </button>
-
-                <button className="w-full px-5 py-3 text-left text-red-600 hover:bg-red-50 transition">
-                  Logout
-                </button>
-
-              </div>
+              <p className="text-sm text-gray-500 capitalize">
+                {user?.role || "Admin"}
+              </p>
 
             </div>
-          )}
 
-        </div>
+          </div>
+
+          <Divider />
+
+
+          <Divider />
+
+          <MenuItem
+            onClick={handleLogout}
+            sx={{
+              color: "red",
+            }}
+          >
+
+            <ListItemIcon>
+              <Logout
+                fontSize="small"
+                color="error"
+              />
+            </ListItemIcon>
+
+            Logout
+
+          </MenuItem>
+
+        </Menu>
 
       </div>
 

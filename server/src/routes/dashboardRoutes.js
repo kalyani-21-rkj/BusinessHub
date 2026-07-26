@@ -7,10 +7,10 @@ const protect = require("../middleware/authMiddleware");
 const authorizeRoles = require("../middleware/roleMiddleware");
 
 router.get(
-    "/",
-    protect,
-    authorizeRoles("admin", "manager"),
-    getDashboard
+  "/",
+  protect,
+  authorizeRoles("admin", "hr", "customer"),
+  getDashboard
 );
 
 module.exports = router;

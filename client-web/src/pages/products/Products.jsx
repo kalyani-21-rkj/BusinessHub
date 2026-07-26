@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/set-state-in-effect */
-import { Plus } from "lucide-react";
+
 import { useEffect, useState } from "react";
+
 import ProductStats from "../../components/products/ProductStats";
 import ProductFilters from "../../components/products/ProductFilters";
 import ProductGrid from "../../components/products/ProductGrid";
@@ -14,47 +15,50 @@ import {
 const Products = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  const [keyword, setKeyword] = useState("");
   const [category, setCategory] = useState("");
   const [brand, setBrand] = useState("");
   const [sort, setSort] = useState("");
 
-  const [keyword, setKeyword] = useState("");
-  const [viewOnly, setViewOnly] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [viewOnly, setViewOnly] = useState(false);
   const [openModal, setOpenModal] = useState(false);
 
+  // Fetch Products
   const fetchProducts = async () => {
-  try {
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    const res = await getProducts(
-      1,
-      keyword,
-      category,
-      brand,
-      sort
-    );
+      const res = await getProducts(
+        1,
+        keyword,
+        category,
+        brand,
+        sort
+      );
 
-    setProducts(res.data.products || []);
-  } catch (err) {
-    console.error(err);
-  } finally {
-    setLoading(false);
-  }
-};
-
-  useEffect(() => {
-  fetchProducts();
-}, []);
+      setProducts(res.data.products || []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-  const timer = setTimeout(() => {
     fetchProducts();
-  }, 400);
+  }, []);
 
-  return () => clearTimeout(timer);
-}, [keyword, category, brand, sort]);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      fetchProducts();
+    }, 400);
 
+    return () => clearTimeout(timer);
+  }, [keyword, category, brand, sort]);
+
+  // Delete Product
   const handleDelete = async (id) => {
     const confirmDelete = window.confirm(
       "Are you sure you want to delete this product?"
@@ -79,88 +83,64 @@ const Products = () => {
   };
 
   return (
-    <div className="flex flex-col gap-8 p-6 w-full">
-      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4"></div>
+    
+    <div className="flex flex-col gap-6 p-6">
 
-      <div className="w-full">
-        <ProductStats />
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
       </div>
 
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 w-full">
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 flex-1">
+      {/* Stats */}
 
-          <div className="relative">
-            <input
-              type="text"
-              placeholder="Search products..."
-              value={keyword}
-              onChange={(e) =>
-                setKeyword(e.target.value)
-              }
-              className="w-full sm:w-80 h-8 pl-4 pr-4 rounded-xl border border-slate-200 bg-white placeholder-slate-400 text-slate-700 outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all shadow-sm"
-            />
-          </div>
+      <ProductStats />
 
-          <ProductFilters
-            category={category}
-            setCategory={setCategory}
-            brand={brand}
-            setBrand={setBrand}
-            sort={sort}
-            setSort={setSort}
-            />
+      {/* Filters */}
 
-        </div>
+      <ProductFilters
+        keyword={keyword}
+        setKeyword={setKeyword}
+        category={category}
+        setCategory={setCategory}
+        brand={brand}
+        setBrand={setBrand}
+        sort={sort}
+        setSort={setSort}
+        onAddProduct={() => {
+          setSelectedProduct(null);
+          setViewOnly(false);
+          setOpenModal(true);
+        }}
+      />
 
-        <button
-          onClick={() => { 
-            setSelectedProduct(null);
-            console.log("Button Clicked");
-            setOpenModal(true);
-          }}
-          className="w-full md:w-auto flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-3 rounded-xl shadow-sm transition-all active:scale-[0.99]"
-        >
-          <Plus
-            size={18}
-            className="stroke-[2.5]"
-          />
-          Add Product
-        </button>
+      {/* Grid */}
 
-      </div>
-
-      <div className="w-full">
-        <ProductGrid
+      <ProductGrid
         products={products}
         loading={loading}
         onView={(product) => {
-       console.log("View clicked", product);
+          setSelectedProduct(product);
+          setViewOnly(true);
+          setOpenModal(true);
+        }}
+        onEdit={(product) => {
+          setSelectedProduct(product);
+          setViewOnly(false);
+          setOpenModal(true);
+        }}
+        onDelete={handleDelete}
+      />
 
-        setSelectedProduct(product);
-         setViewOnly(true);
-        setOpenModal(true);
-  }}
-          onEdit={(product) => {
-            setSelectedProduct(product);
-            setOpenModal(true);
-            setViewOnly(false);
-          }}
-          onDelete={handleDelete}
-        />
-      </div>
+      {/* Modal */}
 
       <ProductModal
         open={openModal}
         product={selectedProduct}
         viewOnly={viewOnly}
-  onClose={() => {
-    setOpenModal(false);
-    setSelectedProduct(null);
-    setViewOnly(false);
+        onClose={() => {
+          setOpenModal(false);
+          setSelectedProduct(null);
+          setViewOnly(false);
         }}
-        onSuccess={() =>
-          fetchProducts()
-        }
+        onSuccess={fetchProducts}
       />
 
     </div>

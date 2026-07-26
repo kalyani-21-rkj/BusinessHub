@@ -1,5 +1,6 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 
+import { useEffect, useState } from "react";
 import {
   FaBoxes,
   FaCheckCircle,
@@ -7,7 +8,6 @@ import {
   FaTimesCircle,
 } from "react-icons/fa";
 
-import { useEffect, useState } from "react";
 import { getInventoryStats } from "../../services/inventoryService";
 
 const InventoryStats = () => {
@@ -17,6 +17,8 @@ const InventoryStats = () => {
     lowStock: 0,
     outOfStock: 0,
   });
+
+  const [loading, setLoading] = useState(true);
 
   const loadStats = async () => {
     try {
@@ -35,6 +37,8 @@ const InventoryStats = () => {
       });
     } catch (err) {
       console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -47,55 +51,57 @@ const InventoryStats = () => {
       title: "Total Products",
       value: stats.totalProducts,
       icon: <FaBoxes />,
-      bg: "bg-blue-100",
-      color: "text-blue-600",
+      color: "bg-blue-500",
     },
     {
       title: "In Stock",
       value: stats.inStock,
       icon: <FaCheckCircle />,
-      bg: "bg-green-100",
-      color: "text-green-600",
+      color: "bg-green-500",
     },
     {
       title: "Low Stock",
       value: stats.lowStock,
       icon: <FaExclamationTriangle />,
-      bg: "bg-yellow-100",
-      color: "text-yellow-600",
+      color: "bg-yellow-500",
     },
     {
       title: "Out of Stock",
       value: stats.outOfStock,
       icon: <FaTimesCircle />,
-      bg: "bg-red-100",
-      color: "text-red-600",
+      color: "bg-red-500",
     },
   ];
 
+  if (loading) {
+    return (
+      <div className="bg-white rounded-2xl shadow-lg p-6 text-center">
+        Loading Statistics...
+      </div>
+    );
+  }
+
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
-      {cards.map((item) => (
+    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+      {cards.map((card) => (
         <div
-          key={item.title}
-          className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 hover:shadow-lg transition"
+          key={card.title}
+          className="bg-white rounded-2xl shadow-sm p-6 h-32 flex justify-between items-center hover:shadow-xl transition-all duration-300"
         >
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-slate-500 text-sm">
-                {item.title}
-              </p>
+          <div>
+            <p className="text-gray-500 text-sm">
+              {card.title}
+            </p>
 
-              <h2 className="text-3xl font-bold text-slate-800 mt-2">
-                {item.value}
-              </h2>
-            </div>
+            <h2 className="text-3xl font-bold mt-2 text-gray-800">
+              {card.value}
+            </h2>
+          </div>
 
-            <div
-              className={`w-14 h-14 rounded-xl flex items-center justify-center text-2xl ${item.bg} ${item.color}`}
-            >
-              {item.icon}
-            </div>
+          <div
+            className={`w-16 h-16 rounded-2xl flex items-center justify-center text-white text-2xl ${card.color}`}
+          >
+            {card.icon}
           </div>
         </div>
       ))}
