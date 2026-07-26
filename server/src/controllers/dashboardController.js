@@ -24,8 +24,9 @@ const getDashboard = asyncHandler(async (req, res) => {
         .limit(5);
 
     const productStock = await Product.find()
-        .select("productName stock quantity")
-        .limit(6);
+       .select("name stock status image category")
+       .sort({ createdAt: -1 })
+       .limit(6);
 
     res.status(200).json({
         success: true,

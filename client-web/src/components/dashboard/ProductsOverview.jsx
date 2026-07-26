@@ -129,14 +129,14 @@ const ProductsOverview = ({ products = [] }) => {
                           fontWeight={700}
                           fontSize={17}
                         >
-                          {product.productName}
+                           {product.name}
                         </Typography>
 
                         <Typography
                           variant="body2"
                           color="text.secondary"
                         >
-                          Stock Available : {stock}
+                          Stock Available : {product.stock}
                         </Typography>
                       </Box>
                     </Box>
