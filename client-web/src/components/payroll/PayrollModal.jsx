@@ -2,12 +2,24 @@
 import { useEffect, useState } from "react";
 
 import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  MenuItem,
+  Grid,
+  Button,
+  Typography,
+  Divider,
+} from "@mui/material";
+
+import {
   generatePayroll,
   updatePayroll,
 } from "../../services/payrollService";
 
 import { getEmployees } from "../../services/employeeService";
-
 const PayrollModal = ({
   open,
   payroll,
@@ -133,254 +145,299 @@ const PayrollModal = ({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-      <div className="bg-white w-full max-w-2xl rounded-2xl shadow-xl p-6">
-
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold text-slate-800">
-            {payroll
-              ? "Payroll Details"
-              : "Generate Payroll"}
-          </h2>
-
-          <button
-            onClick={onClose}
-            className="text-2xl hover:text-red-600"
-          >
-            ×
-          </button>
-        </div>
-
-        <form onSubmit={handleSubmit}>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-
-            <div>
-  <label className="block mb-2 font-medium">
-    Employee
-  </label>
-
-  <select
-    name="employee"
-    value={formData.employee}
-    onChange={handleChange}
-    className="w-full border rounded-xl px-4 py-3"
+  <Dialog
+    open={open}
+    onClose={onClose}
+    maxWidth="md"
+    fullWidth
+    slotProps={{
+      paper: {
+        sx: {
+          borderRadius: 4,
+        },
+      },
+    }}
   >
-    <option value="">Select Employee</option>
+    <DialogTitle
+      sx={{
+        fontSize: 28,
+        fontWeight: 700,
+        pb: 1,
+        bgcolor: "#2563EB",
+        color: "#fff",
+      }}
+    >
+      {payroll ? "Edit Payroll" : "Generate Payroll"}
 
-    {employees.map((emp) => (
-      <option
-        key={emp._id}
-        value={emp._id}
+      <Typography
+        variant="body2"
+        sx={{
+          mt: 0.5,
+          color: "#E5E7EB",
+        }}
       >
-        {emp.fullName}
-      </option>
-    ))}
-  </select>
-</div>
+        Fill payroll details
+      </Typography>
+    </DialogTitle>
 
-           <div>
-  <label className="block mb-2 font-medium">
-    Month
-  </label>
-  
+    <Divider />
 
-  <input
-    type="month"
-    name="month"
-    value={formData.month}
-    onChange={handleChange}
-    className="w-full border rounded-xl px-4 py-3"
-  />
-</div>   
-            <div>
-  <label className="block mb-2 font-medium">
-    Year
-  </label>
+    <DialogContent sx={{ mt: 3 }}>
+      <form onSubmit={handleSubmit}>
+        <Grid container spacing={3}>
 
-  <input
-    type="number"
-    name="year"
-    value={formData.year}
-    onChange={handleChange}
-    className="w-full border rounded-xl px-4 py-3"
-  />
-</div>
+          {/* Employee */}
 
-            <div>
-              <label className="block mb-2 font-medium">
-                Department
-              </label>
-
-              <select
-                name="department"
-                value={formData.department}
-                onChange={handleChange}
-                className="w-full border rounded-xl px-4 py-3"
-              >
-                <option>HR</option>
-                <option>Sales</option>
-                <option>Finance</option>
-                <option>Inventory</option>
-                <option>IT</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block mb-2 font-medium">
-                Basic Salary
-              </label>
-
-              <input
-                type="number"
-                name="basicSalary"
-                value={formData.basicSalary}
-                onChange={handleChange}
-                placeholder="₹ 45,000"
-                className="w-full border rounded-xl px-4 py-3"
-              />
-            </div>
-
-            <div>
-  <label className="block mb-2 font-medium">
-    HRA
-  </label>
-
-  <input
-    type="number"
-    name="hra"
-    value={formData.hra}
-    onChange={handleChange}
-    placeholder="₹ 5,000"
-    className="w-full border rounded-xl px-4 py-3"
-  />
-</div>
-
-<div>
-  <label className="block mb-2 font-medium">
-    DA
-  </label>
-
-  <input
-    type="number"
-    name="da"
-    value={formData.da}
-    onChange={handleChange}
-    placeholder="₹ 2,000"
-    className="w-full border rounded-xl px-4 py-3"
-  />
-</div>
-
-            <div>
-              <label className="block mb-2 font-medium">
-                Bonus
-              </label>
-
-              <input
-                type="number"
-                name="bonus"
-                value={formData.bonus}
-                onChange={handleChange}
-                placeholder="₹ 5,000"
-                className="w-full border rounded-xl px-4 py-3"
-              />
-            </div>
-
-            <div>
-              <label className="block mb-2 font-medium">
-                Deduction
-              </label>
-
-              <input
-                type="number"
-                name="deduction"
-                value={formData.deduction}
-                onChange={handleChange}
-                placeholder="₹ 2,000"
-                className="w-full border rounded-xl px-4 py-3"
-              />
-            </div>
-
-            <div>
-              <label className="block mb-2 font-medium">
-                Net Salary
-              </label>
-
-              <input
-                type="number"
-                name="netSalary"
-                value={formData.netSalary}
-                readOnly
-                className="w-full border rounded-xl px-4 py-3 bg-slate-100"
-              />
-            </div>
-
-            <div>
-              <label className="block mb-2 font-medium">
-                Payment Status
-              </label>
-
-              <select
-                name="paymentStatus"
-                value={formData.paymentStatus}
-                onChange={handleChange}
-                className="w-full border rounded-xl px-4 py-3"
-              >
-                <option>Pending</option>
-                <option>Paid</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block mb-2 font-medium">
-                Payment Method
-              </label>
-
-              <select
-                name="paymentMethod"
-                value={formData.paymentMethod}
-                onChange={handleChange}
-                className="w-full border rounded-xl px-4 py-3"
-              >
-                <option>Bank Transfer</option>
-                <option>UPI</option>
-                <option>Cash</option>
-                <option>Cheque</option>
-              </select>
-            </div>
-
-          </div>
-          
-
-          <div className="flex justify-end gap-3 mt-8">
-
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-6 py-3 border rounded-xl hover:bg-slate-100"
+          <Grid item xs={12} md={6}>
+            <TextField
+              select
+              fullWidth
+              label="Employee"
+              name="employee"
+              value={formData.employee}
+              onChange={handleChange}
+              required
             >
-              Cancel
-            </button>
+              <MenuItem value="">
+                Select Employee
+              </MenuItem>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white"
+              {employees.map((emp) => (
+                <MenuItem
+                  key={emp._id}
+                  value={emp._id}
+                >
+                  {emp.fullName}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Grid>
+
+          {/* Month */}
+
+          <Grid item xs={12} md={6}>
+            <TextField
+              fullWidth
+              size="small"
+              label="Month"
+              type="month"
+              name="month"
+              value={formData.month}
+              onChange={handleChange}
+              InputLabelProps={{
+                shrink: true,
+              }}
+            />
+          </Grid>
+
+          {/* Year */}
+
+          <Grid item xs={12} md={6}>
+            <TextField
+              fullWidth
+              label="Year"
+              name="year"
+              type="number"
+              value={formData.year}
+              onChange={handleChange}
+            />
+          </Grid>
+
+          {/* Department */}
+
+          <Grid item xs={12} md={6}>
+            <TextField
+              select
+              fullWidth
+              label="Department"
+              name="department"
+              value={formData.department}
+              onChange={handleChange}
             >
-              {loading
-                ? "Saving..."
-                : payroll
-                ? "Update Payroll"
-                : "Generate Payroll"}
-            </button>
+              <MenuItem value="HR">HR</MenuItem>
+              <MenuItem value="Sales">Sales</MenuItem>
+              <MenuItem value="Finance">Finance</MenuItem>
+              <MenuItem value="Inventory">Inventory</MenuItem>
+              <MenuItem value="IT">IT</MenuItem>
+            </TextField>
+          </Grid>
 
-          </div>
+          {/* Basic Salary */}
 
-        </form>
+          <Grid item xs={12} md={6}>
+            <TextField
+              fullWidth
+              label="Basic Salary"
+              name="basicSalary"
+              type="number"
+              value={formData.basicSalary}
+              onChange={handleChange}
+            />
+          </Grid>
 
-      </div>
-    </div>
-  );
+          {/* HRA */}
+
+          <Grid item xs={12} md={6}>
+            <TextField
+              fullWidth
+              label="HRA"
+              name="hra"
+              type="number"
+              value={formData.hra}
+              onChange={handleChange}
+            />
+          </Grid>
+
+          {/* DA */}
+
+          <Grid item xs={12} md={6}>
+            <TextField
+              fullWidth
+              label="DA"
+              name="da"
+              type="number"
+              value={formData.da}
+              onChange={handleChange}
+            />
+          </Grid>
+
+          {/* Bonus */}
+
+          <Grid item xs={12} md={6}>
+            <TextField
+              fullWidth
+              label="Bonus"
+              name="bonus"
+              type="number"
+              value={formData.bonus}
+              onChange={handleChange}
+            />
+          </Grid>
+
+          {/* Deduction */}
+
+          <Grid item xs={12} md={6}>
+            <TextField
+              fullWidth
+              label="Deduction"
+              name="deduction"
+              type="number"
+              value={formData.deduction}
+              onChange={handleChange}
+            />
+          </Grid>
+
+          {/* Net Salary */}
+
+          <Grid item xs={12} md={6}>
+            <TextField
+              fullWidth
+              label="Net Salary"
+              name="netSalary"
+              type="number"
+              value={formData.netSalary}
+              InputProps={{
+                readOnly: true,
+              }}
+            />
+          </Grid>
+
+          {/* Payment Status */}
+
+          <Grid item xs={12} md={6}>
+            <TextField
+              select
+              fullWidth
+              label="Payment Status"
+              name="paymentStatus"
+              value={formData.paymentStatus}
+              onChange={handleChange}
+            >
+              <MenuItem value="Pending">
+                Pending
+              </MenuItem>
+
+              <MenuItem value="Paid">
+                Paid
+              </MenuItem>
+            </TextField>
+          </Grid>
+
+          {/* Payment Method */}
+
+          <Grid item xs={12} md={6}>
+            <TextField
+              select
+              fullWidth
+              label="Payment Method"
+              name="paymentMethod"
+              value={formData.paymentMethod}
+              onChange={handleChange}
+            >
+              <MenuItem value="Bank Transfer">
+                Bank Transfer
+              </MenuItem>
+
+              <MenuItem value="UPI">
+                UPI
+              </MenuItem>
+
+              <MenuItem value="Cash">
+                Cash
+              </MenuItem>
+
+              <MenuItem value="Cheque">
+                Cheque
+              </MenuItem>
+            </TextField>
+          </Grid>
+
+        </Grid>
+      </form>
+    </DialogContent>
+
+    <DialogActions
+      sx={{
+        px: 3,
+        pb: 3,
+        gap: 2,
+      }}
+    >
+      <Button
+        variant="outlined"
+        onClick={onClose}
+        sx={{
+          borderRadius: 2,
+          textTransform: "none",
+          px: 3,
+        }}
+      >
+        Cancel
+      </Button>
+
+      <Button
+        variant="contained"
+        onClick={handleSubmit}
+        disabled={loading}
+        sx={{
+          borderRadius: 2,
+          textTransform: "none",
+          px: 3,
+          bgcolor: "#2563EB",
+          "&:hover": {
+            bgcolor: "#1D4ED8",
+          },
+        }}
+      >
+        {loading
+          ? "Saving..."
+          : payroll
+          ? "Update Payroll"
+          : "Generate Payroll"}
+      </Button>
+    </DialogActions>
+  </Dialog>
+);
 };
 
 export default PayrollModal;

@@ -11,16 +11,16 @@ import {
   Add,
 } from "@mui/icons-material";
 
-const ProductFilters = ({
-  keyword,
-  setKeyword,
-  category,
-  setCategory,
-  brand,
-  setBrand,
-  sort,
-  setSort,
-  onAddProduct,
+const PayrollFilters = ({
+  search,
+  setSearch,
+  department,
+  setDepartment,
+  month,
+  setMonth,
+  status,
+  setStatus,
+  onCreatePayroll,
 }) => {
   return (
     <Paper
@@ -41,10 +41,10 @@ const ProductFilters = ({
       {/* Search */}
 
       <TextField
-        placeholder="Search product..."
+        placeholder="Search employee..."
         size="small"
-        value={keyword}
-        onChange={(e) => setKeyword(e.target.value)}
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
         sx={{
           width: {
             xs: "100%",
@@ -60,68 +60,69 @@ const ProductFilters = ({
         }}
       />
 
-      {/* Category */}
+      {/* Department */}
 
       <TextField
         select
         size="small"
-        label="Category"
-        value={category}
-        onChange={(e) => setCategory(e.target.value)}
+        label="Department"
+        value={department}
+        onChange={(e) => setDepartment(e.target.value)}
         sx={{ minWidth: 170 }}
       >
-        <MenuItem value="">All Categories</MenuItem>
-        <MenuItem value="Laptop">Laptop</MenuItem>
-        <MenuItem value="Mobile">Mobile</MenuItem>
-        <MenuItem value="Tablet">Tablet</MenuItem>
-        <MenuItem value="Accessories">Accessories</MenuItem>
+        <MenuItem value="">All Departments</MenuItem>
+        <MenuItem value="HR">HR</MenuItem>
+        <MenuItem value="Sales">Sales</MenuItem>
+        <MenuItem value="Finance">Finance</MenuItem>
+        <MenuItem value="IT">IT</MenuItem>
       </TextField>
 
-      {/* Brand */}
+      {/* Month */}
 
       <TextField
         select
         size="small"
-        label="Brand"
-        value={brand}
-        onChange={(e) => setBrand(e.target.value)}
+        label="Month"
+        value={month}
+        onChange={(e) => setMonth(e.target.value)}
         sx={{ minWidth: 170 }}
       >
-        <MenuItem value="">All Brands</MenuItem>
-        <MenuItem value="Apple">Apple</MenuItem>
-        <MenuItem value="Samsung">Samsung</MenuItem>
-        <MenuItem value="Dell">Dell</MenuItem>
-        <MenuItem value="HP">HP</MenuItem>
-        <MenuItem value="Lenovo">Lenovo</MenuItem>
-        <MenuItem value="Asus">Asus</MenuItem>
-        <MenuItem value="Acer">Acer</MenuItem>
+        <MenuItem value="">All Months</MenuItem>
+        <MenuItem value="January">January</MenuItem>
+        <MenuItem value="February">February</MenuItem>
+        <MenuItem value="March">March</MenuItem>
+        <MenuItem value="April">April</MenuItem>
+        <MenuItem value="May">May</MenuItem>
+        <MenuItem value="June">June</MenuItem>
+        <MenuItem value="July">July</MenuItem>
+        <MenuItem value="August">August</MenuItem>
+        <MenuItem value="September">September</MenuItem>
+        <MenuItem value="October">October</MenuItem>
+        <MenuItem value="November">November</MenuItem>
+        <MenuItem value="December">December</MenuItem>
       </TextField>
 
-      {/* Sort */}
+      {/* Status */}
 
       <TextField
         select
         size="small"
-        label="Sort By"
-        value={sort}
-        onChange={(e) => setSort(e.target.value)}
+        label="Status"
+        value={status}
+        onChange={(e) => setStatus(e.target.value)}
         sx={{ minWidth: 180 }}
       >
-        <MenuItem value="">Default</MenuItem>
-        <MenuItem value="newest">Newest</MenuItem>
-        <MenuItem value="oldest">Oldest</MenuItem>
-        <MenuItem value="priceLow">Price Low → High</MenuItem>
-        <MenuItem value="priceHigh">Price High → Low</MenuItem>
-        <MenuItem value="stockLow">Stock Low → High</MenuItem>
-        <MenuItem value="stockHigh">Stock High → Low</MenuItem>
+        <MenuItem value="">All Status</MenuItem>
+        <MenuItem value="Paid">Paid</MenuItem>
+        <MenuItem value="Pending">Pending</MenuItem>
       </TextField>
 
-      {/* Add Product */}
+      {/* Add Payroll */}
 
       <Button
         variant="contained"
         startIcon={<Add />}
-        onClick={onAddProduct}
+        onClick={onCreatePayroll}
         sx={{
           bgcolor: "#2563EB",
           borderRadius: 3,
@@ -134,10 +135,10 @@ const ProductFilters = ({
           },
         }}
       >
-        Add Product
+        Add Payroll
       </Button>
     </Paper>
   );
 };
 
-export default ProductFilters;
+export default PayrollFilters;
