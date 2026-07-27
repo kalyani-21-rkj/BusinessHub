@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API = "http://localhost:4000/api/bills";
+const API = "https://businesshub-api-mgxa.onrender.com/api/bills";
 
 
 export const getBills = () => {
